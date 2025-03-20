@@ -5,11 +5,19 @@
 		"esModuleInterop": true,
 		"jsx": "react-jsx",
 		"types": ["node"],
-		"target": "esnext",
+		"target": "ESNext",
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
+		"allowImportingTsExtensions": true,
+		"allowSyntheticDefaultImports": true,
+		"noEmit": true,
 		"strict": true,
-		"outDir": "dist"
+		"outDir": "dist",
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./*"]
+		},
+		"resolveJsonModule": true
 	},
-	"include": ["bin/**/*"]
+	"include": ["bin/**/*", "commands/**/*", "utils/**/*"]
 }

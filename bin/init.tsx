@@ -1,21 +1,10 @@
 #!/usr/bin/env node
 import inquirer from "inquirer";
 import fs from "fs";
-import os from "os";
-import path from "path";
 import chalk from "chalk";
 import figlet from "figlet";
-
-const CONFIG_DIR = path.join(os.homedir(), ".system-cli");
-const PROFILE_PATH = path.join(CONFIG_DIR, "profile.json");
-const CONFIG_PATH = path.join(CONFIG_DIR, "config.json");
-
-interface Profile {
-	name: string;
-	email: string;
-	jobTitle?: string;
-	createdAt?: string;
-}
+import { CONFIG_DIR, CONFIG_PATH, PROFILE_PATH } from "@/utils/config.ts";
+import { Profile } from "@/utils/types.ts";
 
 const ensureDir = () => {
 	if (!fs.existsSync(CONFIG_DIR)) {
