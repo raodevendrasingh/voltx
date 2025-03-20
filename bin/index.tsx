@@ -1,6 +1,12 @@
 #!/usr/bin/env node
-import { render, Text } from "ink";
+import { program } from "commander";
+import { spawn } from "child_process";
 
-const App = () => <Text color="green">CLI works! 🚀</Text>;
+program
+	.command("init")
+	.description("Initialize configuration")
+	.action(() => {
+		spawn("npx", ["tsx", "bin/init.tsx"], { stdio: "inherit" });
+	});
 
-render(<App />);
+program.parse(process.argv);

@@ -17,6 +17,7 @@
 	"dependencies": {
 		"boxen": "^8.0.1",
 		"chalk": "^5.4.1",
+		"commander": "^13.1.0",
 		"figlet": "^1.8.0",
 		"ink": "^5.2.0",
 		"inquirer": "^12.5.0",
@@ -24,6 +25,7 @@
 		"react-dom": "18.3.1"
 	},
 	"devDependencies": {
+		"@types/figlet": "^1.7.0",
 		"@types/node": "^22.13.10",
 		"@types/react": "^18.3.19",
 		"tsx": "^4.19.3",
