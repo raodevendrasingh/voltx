@@ -1,0 +1,32 @@
+{
+	"name": "cli-aggregator-starter",
+	"version": "0.1.0",
+	"description": "",
+	"main": "index.js",
+	"type": "module",
+	"bin": {
+		"system": "./bin/index.tsx"
+	},
+	"scripts": {
+		"dev": "tsx bin/index.ts"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"packageManager": "pnpm@10.6.4",
+	"dependencies": {
+		"boxen": "^8.0.1",
+		"chalk": "^5.4.1",
+		"figlet": "^1.8.0",
+		"ink": "^5.2.0",
+		"inquirer": "^12.5.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
+	},
+	"devDependencies": {
+		"@types/node": "^22.13.10",
+		"@types/react": "^18.3.19",
+		"tsx": "^4.19.3",
+		"typescript": "^5.8.2"
+	}
+}

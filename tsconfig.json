@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"esModuleInterop": true,
+		"jsx": "react-jsx",
+		"types": ["node"],
+		"target": "esnext",
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"outDir": "dist"
+	},
+	"include": ["bin/**/*"]
+}
