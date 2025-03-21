@@ -27,9 +27,7 @@ async function selectProvider(): Promise<Provider | null> {
 	return provider;
 }
 
-async function selectModel(
-	provider: Provider
-): Promise<ModelName | null | "back"> {
+async function selectModel(provider: Provider): Promise<ModelName | null> {
 	const { model } = await inquirer.prompt([
 		{
 			type: "list",
@@ -43,12 +41,11 @@ async function selectModel(
 					value: m,
 				})),
 				new inquirer.Separator(),
-				{ name: "Back to provider selection", value: "back" },
 				{ name: "Exit", value: null },
 			],
 		},
 	]);
-	return model === "back" ? "back" : model;
+	return model;
 }
 
 async function startChat() {
@@ -65,23 +62,83 @@ async function startChat() {
 		const configContent = fs.readFileSync(CONFIG_PATH, "utf-8");
 		const config = TOML.parse(configContent) as Config;
 
-		if (config.user.defaultModel && config.user.defaultProvider) {
+		const providerArg = process.argv[2];
+		const useTemp = process.argv.includes("--temp");
+
+		// If provider specified
+		if (providerArg) {
+			const provider = providerArg as Provider;
+
+			// If --temp flag is used, go directly to model selection
+			if (useTemp) {
+				const selectedModel = await selectModel(provider);
+				if (!selectedModel) {
+					console.log(chalk.yellow("\nChat session cancelled."));
+					process.exit(0);
+				}
+
+				logEvent(
+					"info",
+					`Starting temporary chat session with ${selectedModel} from ${provider}`
+				);
+				console.log(
+					chalk.cyan(
+						`\nStarting chat session with ${modelColor(
+							selectedModel
+						)} ` +
+							`from ${getProviderColor(provider)(provider)}...\n`
+					)
+				);
+				process.exit(0);
+			}
+
+			// Check provider's default model
+			const providerConfig = config[provider];
+			if (providerConfig?.DEFAULT_MODEL) {
+				logEvent(
+					"info",
+					`Starting chat session with ${providerConfig.DEFAULT_MODEL} from ${provider}`
+				);
+				console.log(
+					chalk.cyan(
+						`\nStarting chat session with ${modelColor(
+							providerConfig.DEFAULT_MODEL
+						)} ` +
+							`from ${getProviderColor(provider)(provider)}...\n`
+					)
+				);
+				process.exit(0);
+			}
+		}
+
+		// If no provider specified, check global default
+		if (
+			!providerArg &&
+			config.user.defaultModel &&
+			config.user.defaultProvider &&
+			!useTemp
+		) {
+			logEvent(
+				"info",
+				`Starting chat session with default model ${config.user.defaultModel} from ${config.user.defaultProvider}`
+			);
 			console.log(
 				chalk.cyan(
 					`\nStarting chat session with ${modelColor(
 						config.user.defaultModel
-					)} from ${getProviderColor(config.user.defaultProvider)(
-						config.user.defaultProvider
-					)}...\n`
+					)} ` +
+						`from ${getProviderColor(config.user.defaultProvider)(
+							config.user.defaultProvider
+						)}...\n`
 				)
 			);
 			process.exit(0);
 		}
 
+		// If no defaults or using temp mode, prompt for selection
 		console.log(chalk.yellow("\nNo default model configured."));
 
-		type ChatOption = "default" | "temporary";
-		const { option } = await inquirer.prompt<{ option: ChatOption }>([
+		const { option } = await inquirer.prompt([
 			{
 				type: "list",
 				name: "option",
@@ -99,48 +156,45 @@ async function startChat() {
 			},
 		]);
 
-		let provider: Provider | null;
-		let model: ModelName | null | "back";
-
-		while (true) {
-			provider = await selectProvider();
-			if (!provider) {
-				console.log(chalk.yellow("\nExiting chat session."));
-				process.exit(0);
-			}
-
-			model = await selectModel(provider);
-			if (!model) {
-				console.log(chalk.yellow("\nExiting chat session."));
-				process.exit(0);
-			}
-			if (model === "back") {
-				continue;
-			}
-			break;
+		// Provider selection
+		const selectedProvider =
+			(providerArg as Provider) || (await selectProvider());
+		if (!selectedProvider) {
+			console.log(chalk.yellow("\nChat session cancelled."));
+			process.exit(0);
 		}
 
+		// Model selection
+		const selectedModel = await selectModel(selectedProvider);
+		if (!selectedModel) {
+			console.log(chalk.yellow("\nChat session cancelled."));
+			process.exit(0);
+		}
+
+		// Set as default if chosen
 		if (option === "default") {
-			config.user.defaultModel = model;
-			config.user.defaultProvider = provider;
-
+			config.user.defaultModel = selectedModel;
+			config.user.defaultProvider = selectedProvider;
 			fs.writeFileSync(CONFIG_PATH, TOML.stringify(config));
-
 			logEvent(
 				"info",
-				`User set default chat model to ${model} from provider ${provider}`
+				`User set default chat model to ${selectedModel} from provider ${selectedProvider}`
 			);
-
 			console.log(
 				chalk.green("\nDefault model configured successfully!")
 			);
 		}
 
+		logEvent(
+			"info",
+			`Starting chat session with ${selectedModel} from ${selectedProvider}`
+		);
 		console.log(
 			chalk.cyan(
-				`\nStarting chat session with ${modelColor(
-					model
-				)} from ${getProviderColor(provider)(provider)}...\n`
+				`\nStarting chat session with ${modelColor(selectedModel)} ` +
+					`from ${getProviderColor(selectedProvider)(
+						selectedProvider
+					)}...\n`
 			)
 		);
 

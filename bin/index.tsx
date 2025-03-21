@@ -102,18 +102,21 @@ program
 
 program
 	.command("start")
-	.argument("type", "Type of session to start (chat)")
+	.argument("<type>", "Type of session to start (chat)")
+	.argument("[provider]", "Provider to use for chat")
+	.option("--temp", "Use temporary model selection")
 	.description("Start a new chat session")
-	.action((type) => {
+	.action((type, provider, options) => {
 		if (type !== "chat") {
 			console.error(
 				chalk.red("Only chat sessions are supported currently")
 			);
 			process.exit(1);
 		}
-		spawn("npx", ["tsx", "commands/chat/start.tsx"], {
-			stdio: "inherit",
-		});
+		const args = ["tsx", "commands/chat/start.tsx"];
+		if (provider) args.push(provider);
+		if (options.temp) args.push("--temp");
+		spawn("npx", args, { stdio: "inherit" });
 	});
 
 program
