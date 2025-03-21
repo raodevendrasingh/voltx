@@ -3,6 +3,7 @@ import { program } from "commander";
 import { spawn } from "child_process";
 import chalk from "chalk";
 import { pkg } from "@/utils/paths.ts";
+import { providers } from "@/utils/models.ts";
 
 program.version(pkg.version, "-v, --version", "Display CLI version");
 
@@ -45,14 +46,30 @@ program
 
 program
 	.command("config-set-default-model")
-	.description("Set the default model for a provider")
-	.option("--provider <provider>", "Specify the provider")
+	.description("Set the default model for chat sessions")
+	.option(
+		"--provider <provider>",
+		"Provider name (openai, anthropic, google, deepseek, perplexity)"
+	)
 	.action((options) => {
-		const args = ["tsx", "commands/config/set-default-model.tsx"];
-		if (options.provider) {
-			args.push(`--provider=${options.provider}`);
+		if (!options.provider) {
+			console.error(
+				chalk.red(
+					"\nError: Please provide a provider name with --provider flag\n"
+				) +
+					chalk.gray("Available providers: ") +
+					providers.map((p) => chalk.bold(p)).join(", ") +
+					"\n"
+			);
+			process.exit(1);
 		}
-		spawn("npx", args, { stdio: "inherit" });
+		spawn(
+			"npx",
+			["tsx", "commands/config/set-default-model.tsx", options.provider],
+			{
+				stdio: "inherit",
+			}
+		);
 	});
 
 program

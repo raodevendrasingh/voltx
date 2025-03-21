@@ -1,68 +1,110 @@
 import fs from "fs";
-import prompts from "prompts";
-import { models, providers, Provider } from "@/utils/models.ts";
-import { PROFILE_PATH } from "@/utils/paths.ts";
 import chalk from "chalk";
+import TOML from "@iarna/toml";
+import inquirer from "inquirer";
+import { Config } from "@/utils/types.ts";
+import { CONFIG_PATH } from "@/utils/paths.ts";
+import { models, providers, Provider, ModelName } from "@/utils/models.ts";
 import { getProviderColor, modelColor } from "@/utils/colors.ts";
-import path from "path";
+import { logEvent } from "@/utils/logger.ts";
 
-async function setDefaultModel() {
-	const args = process.argv.slice(2);
-	const providerArg = args.find((arg) => arg.startsWith("--provider="));
-	const providerName = providerArg ? providerArg.split("=")[1] : null;
-
-	if (!providerName || !providers.includes(providerName as Provider)) {
-		console.error(
-			`${chalk.red("Error:")} Invalid or missing provider.\n` +
-				`Available providers: ${providers
-					.map((p) => chalk.bold(p))
-					.join(", ")}`
-		);
-		process.exit(1);
-	}
-
-	const colorFn = getProviderColor(providerName as Provider);
-	console.log(
-		chalk.bold(
-			`\nSelect your default model for ${colorFn(providerName)}:\n`
-		)
-	);
-
-	const response = await prompts({
-		type: "select",
-		name: "model",
-		message: `Choose a default model for ${providerName}:`,
-		choices: models[providerName as Provider].map((m) => ({
-			title: modelColor(m),
-			value: m,
-		})),
-	});
-
-	if (!response.model) {
-		console.log(chalk.yellow("No model selected. Exiting."));
-		process.exit(0);
-	}
-
-	let profile = {};
-	if (fs.existsSync(PROFILE_PATH)) {
-		const rawProfile = fs.readFileSync(PROFILE_PATH, "utf-8");
-		profile = JSON.parse(rawProfile);
-	}
-
-	const updatedProfile = {
-		...profile,
-		defaultProvider: providerName,
-		defaultModel: response.model,
-	};
-
-	fs.mkdirSync(path.dirname(PROFILE_PATH), { recursive: true });
-	fs.writeFileSync(PROFILE_PATH, JSON.stringify(updatedProfile, null, 2));
-
-	console.log(
-		`\n${chalk.green("Success!")} Set default model to ${modelColor(
-			response.model
-		)} for provider ${colorFn(providerName)}.\n`
-	);
+async function selectModel(provider: Provider): Promise<ModelName | null> {
+	const { model } = await inquirer.prompt([
+		{
+			type: "list",
+			name: "model",
+			message: `Select default model from ${getProviderColor(provider)(
+				provider
+			)}:`,
+			choices: [
+				...models[provider].map((m) => ({
+					name: modelColor(m),
+					value: m,
+				})),
+				new inquirer.Separator(),
+				{ name: "Exit", value: null },
+			],
+		},
+	]);
+	return model;
 }
 
-setDefaultModel();
+async function setDefaultModel() {
+	try {
+		const providerName = process.argv[2];
+
+		if (!providers.includes(providerName as Provider)) {
+			console.error(
+				chalk.red("\nError: Invalid provider\n") +
+					chalk.gray("Available providers: ") +
+					providers.map((p) => getProviderColor(p)(p)).join(", ") +
+					"\n"
+			);
+			process.exit(1);
+		}
+
+		if (!fs.existsSync(CONFIG_PATH)) {
+			console.log(
+				chalk.yellow(
+					"\nNo configuration found. Please run 'system init' first.\n"
+				)
+			);
+			process.exit(1);
+		}
+
+		const configContent = fs.readFileSync(CONFIG_PATH, "utf-8");
+		const config = TOML.parse(configContent) as Config;
+
+		// Check if default model is already configured
+		if (config.user.defaultModel && config.user.defaultProvider) {
+			console.log(
+				chalk.yellow(
+					`\nDefault model already configured: ${modelColor(
+						config.user.defaultModel
+					)} ` +
+						`from ${getProviderColor(config.user.defaultProvider)(
+							config.user.defaultProvider
+						)}\n`
+				)
+			);
+			process.exit(0);
+		}
+
+		const model = await selectModel(providerName as Provider);
+		if (!model) {
+			console.log(
+				chalk.yellow("\nExiting without setting default model.")
+			);
+			process.exit(0);
+		}
+
+		// Update config with new default model
+		config.user.defaultModel = model;
+		config.user.defaultProvider = providerName as Provider;
+		fs.writeFileSync(CONFIG_PATH, TOML.stringify(config));
+
+		logEvent(
+			"info",
+			`User configured default model: ${model} from provider ${providerName}`
+		);
+
+		console.log(
+			chalk.green(
+				`\nDefault model configured successfully: ${modelColor(
+					model
+				)} ` +
+					`from ${getProviderColor(providerName as Provider)(
+						providerName
+					)}\n`
+			)
+		);
+	} catch (error) {
+		console.error(chalk.red("Error setting default model:"), error);
+		process.exit(1);
+	}
+}
+
+setDefaultModel().catch((error) => {
+	console.error(chalk.red("Error:"), error);
+	process.exit(1);
+});
