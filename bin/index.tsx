@@ -2,10 +2,11 @@
 import { program } from "commander";
 import { spawn } from "child_process";
 import chalk from "chalk";
-import pkg from "@/package.json" with { type: "json" };
+import { pkg } from "@/utils/paths.ts";
+
+program.version(pkg.version, "-v, --version", "Display CLI version");
 
 program
-	.version(pkg.version, "-v, --version", "Display CLI version")
 	.command("init")
 	.description("Initialize configuration")
 	.action(() => {

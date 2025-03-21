@@ -3,7 +3,7 @@ import chalk from "chalk";
 import figlet from "figlet";
 import { Profile } from "@/utils/types.ts";
 import pkg from "@/package.json" with { type: "json" };
-import { CONFIG_PATH, PROFILE_PATH, CHATS_DIR } from "@/utils/config.ts";
+import { CONFIG_PATH, PROFILE_PATH, CHATS_DIR } from "@/utils/paths.ts";
 
 
 const showAsciiArt = () => {

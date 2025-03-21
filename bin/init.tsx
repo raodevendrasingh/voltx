@@ -3,7 +3,7 @@ import inquirer from "inquirer";
 import fs from "fs";
 import chalk from "chalk";
 import figlet from "figlet";
-import { CONFIG_DIR, CONFIG_PATH, PROFILE_PATH } from "@/utils/config.ts";
+import { CONFIG_DIR, CONFIG_PATH, PROFILE_PATH } from "@/utils/paths.ts";
 import { Profile } from "@/utils/types.ts";
 
 const ensureDir = () => {
