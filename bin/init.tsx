@@ -1,104 +1,181 @@
 #!/usr/bin/env node
-import inquirer from "inquirer";
 import fs from "fs";
 import chalk from "chalk";
-import figlet from "figlet";
-import { CONFIG_DIR, CONFIG_PATH, PROFILE_PATH } from "@/utils/paths.ts";
-import { Profile } from "@/utils/types.ts";
+import TOML from "@iarna/toml";
+import inquirer from "inquirer";
+import {
+	BASE_DIR,
+	CONFIG_PATH,
+	LOGS_DIR,
+	CHATS_DIR,
+	TEMP_DIR,
+	CACHE_DIR,
+} from "@/utils/paths.ts";
+import { models, providers, Provider, ModelName } from "@/utils/models.ts";
+import { getProviderColor, modelColor } from "@/utils/colors.ts";
+import { logEvent } from "@/utils/logger.ts";
+import { Config } from "@/utils/types.ts";
+import { showBanner } from "@/utils/ascii.ts";
 
-const ensureDir = () => {
-	if (!fs.existsSync(CONFIG_DIR)) {
-		fs.mkdirSync(CONFIG_DIR);
-	}
+const createDirectories = () => {
+	[BASE_DIR, LOGS_DIR, CHATS_DIR, TEMP_DIR, CACHE_DIR].forEach((dir) => {
+		if (!fs.existsSync(dir)) {
+			fs.mkdirSync(dir, { recursive: true });
+		}
+	});
 };
 
-const loadJSON = (filePath: string) => {
-	return fs.existsSync(filePath)
-		? JSON.parse(fs.readFileSync(filePath, "utf8"))
-		: {};
+const validateUsername = (input: string): boolean | string => {
+	if (!input) return "Username is required";
+	if (!/^[a-z0-9]+$/.test(input))
+		return "Username must contain only lowercase letters and numbers";
+	return true;
 };
 
-const saveJSON = (filePath: string, data: any) => {
-	fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-};
-
-const askProfileQuestions = async () => {
-	console.log(chalk.cyanBright("Let’s set up your profile:"));
-	const profile: Profile = await inquirer.prompt([
-		{ type: "input", name: "name", message: "Enter your name:" },
-		{ type: "input", name: "email", message: "Enter your email:" },
+const askUsername = async (): Promise<string> => {
+	const { username } = await inquirer.prompt([
 		{
 			type: "input",
-			name: "jobTitle",
-			message: "Enter your job title (optional):",
+			name: "username",
+			message: "What should we call you?",
+			validate: validateUsername,
+		},
+	]);
+	return username;
+};
+
+const selectProvider = async (
+	configuredProviders: Provider[] = []
+): Promise<Provider | null> => {
+	const availableProviders = providers.filter(
+		(p) => !configuredProviders.includes(p)
+	);
+
+	if (availableProviders.length === 0) {
+		console.log(chalk.yellow("\nAll providers have been configured."));
+		return null;
+	}
+
+	console.log(chalk.bold("\nAvailable Providers:"));
+	const { provider } = await inquirer.prompt([
+		{
+			type: "list",
+			name: "provider",
+			message: "Select a provider to configure:",
+			choices: availableProviders.map((p) => ({
+				name: getProviderColor(p)(p),
+				value: p,
+			})),
+		},
+	]);
+	return provider as Provider;
+};
+
+const selectModel = async (provider: Provider): Promise<ModelName> => {
+	const providerModels = models[provider];
+	const { model } = await inquirer.prompt([
+		{
+			type: "list",
+			name: "model",
+			message: `Select default model for ${getProviderColor(provider)(
+				provider
+			)}:`,
+			choices: providerModels.map((m) => ({
+				name: modelColor(m),
+				value: m,
+			})),
+		},
+	]);
+	return model;
+};
+
+const configureProvider = async (
+	provider: Provider
+): Promise<{
+	API_KEY: string;
+	DEFAULT_MODEL: ModelName;
+}> => {
+	const { apiKey } = await inquirer.prompt([
+		{
+			type: "input",
+			name: "apiKey",
+			message: `Enter API key for ${getProviderColor(provider)(
+				provider
+			)}:`,
+			validate: (input: string) =>
+				input.trim() !== "" || "API key is required",
 		},
 	]);
 
-	profile.createdAt = new Date().toISOString();
-	saveJSON(PROFILE_PATH, profile);
-	console.log(chalk.green("Profile saved.\n"));
+	const defaultModel = await selectModel(provider);
+
+	return {
+		API_KEY: apiKey,
+		DEFAULT_MODEL: defaultModel,
+	};
 };
 
-const askModelConfig = async () => {
-	const config = loadJSON(CONFIG_PATH);
-	let addMore = true;
-
-	while (addMore) {
-		const { model } = await inquirer.prompt([
-			{
-				type: "list",
-				name: "model",
-				message: "Select the model you want to configure:",
-				choices: ["openai", "claude", "gemini", "deepseek"],
-			},
-		]);
-
-		const { apiKey } = await inquirer.prompt([
-			{
-				type: "input",
-				name: "apiKey",
-				message: `Enter API key for ${model}:`,
-			},
-		]);
-
-		config[model] = { apiKey, addedAt: new Date().toISOString() };
-
-		const { more } = await inquirer.prompt([
-			{
-				type: "confirm",
-				name: "more",
-				message: "Add another model?",
-				default: false,
-			},
-		]);
-
-		addMore = more;
-	}
-
-	saveJSON(CONFIG_PATH, config);
-	console.log(chalk.green("\nAPI keys saved.\n"));
-};
-
-const showBanner = () => {
-	console.log(
-		chalk.yellow(
-			figlet.textSync("System CLI", { horizontalLayout: "default" })
-		)
-	);
+const askToContinue = async (): Promise<boolean> => {
+	const { continue: shouldContinue } = await inquirer.prompt([
+		{
+			type: "confirm",
+			name: "continue",
+			message: "Would you like to configure another provider?",
+			default: false,
+		},
+	]);
+	return shouldContinue;
 };
 
 const run = async () => {
-	ensureDir();
+	createDirectories();
 	showBanner();
 
-	if (!fs.existsSync(PROFILE_PATH)) {
-		await askProfileQuestions();
-	} else {
-		console.log(chalk.gray("Profile exists. Skipping profile setup."));
+	if (fs.existsSync(CONFIG_PATH)) {
+		console.log(
+			chalk.gray(
+				"\nConfiguration already exists, skipping initialization."
+			)
+		);
+		console.log(chalk.gray('For help, run "system help"\n'));
+		process.exit(0);
 	}
 
-	await askModelConfig();
-	console.log(chalk.greenBright("\nAll done! Your CLI is ready."));
+	const username = await askUsername();
+	const timestamp = new Date().toISOString();
+
+	const config: Config = {
+		user: {
+			username,
+			createdAt: timestamp,
+			providers: [],
+		},
+	};
+
+	logEvent("info", `User initialized system with username: ${username}`);
+
+	let shouldContinue = true;
+	while (shouldContinue) {
+		const provider = await selectProvider(config.user.providers);
+		if (!provider) break;
+
+		const providerConfig = await configureProvider(provider);
+		config[provider] = providerConfig;
+		config.user.providers.push(provider);
+
+		logEvent(
+			"info",
+			`User ${username} configured provider: ${provider} with model: ${providerConfig.DEFAULT_MODEL}`
+		);
+
+		shouldContinue = await askToContinue();
+	}
+
+	fs.writeFileSync(CONFIG_PATH, TOML.stringify(config));
+	console.log(chalk.green("\nConfiguration completed successfully! 🎉\n"));
 };
 
-run();
+run().catch((error) => {
+	console.error(chalk.red("Error during initialization:"), error);
+	process.exit(1);
+});

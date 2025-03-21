@@ -1,14 +1,14 @@
-import inquirer from "inquirer";
 import fs from "fs";
-import { CONFIG_DIR, PROFILE_PATH } from "@/utils/paths.ts";
 import chalk from "chalk";
+import inquirer from "inquirer";
+import { BASE_DIR, CONFIG_PATH } from "@/utils/paths.ts";
 
 async function resetSystem() {
 	const args = process.argv.slice(2);
 	const dangerFlag = args.includes("--danger");
 
 	// Check if system is initialized
-	if (!fs.existsSync(PROFILE_PATH)) {
+	if (!fs.existsSync(CONFIG_PATH)) {
 		console.log(
 			chalk.yellow("System not initialized.") +
 				" Run " +
@@ -48,7 +48,7 @@ async function resetSystem() {
 	}
 
 	try {
-		fs.rmSync(CONFIG_DIR, { recursive: true, force: true });
+		fs.rmSync(BASE_DIR, { recursive: true, force: true });
 		console.log(chalk.green("Success! System profile cleared!"));
 		console.log("Run `system -h` for help.");
 	} catch (err) {
