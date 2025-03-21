@@ -32,8 +32,13 @@ program
 program
 	.command("config-list-models")
 	.description("List all supported models by provider")
-	.action(() => {
-		spawn("npx", ["tsx", "commands/config/list-models.tsx"], {
+	.option("--provider <provider>", "Specify a provider to list models for")
+	.action((options) => {
+		const args = ["tsx", "commands/config/list-models.tsx"];
+		if (options.provider) {
+			args.push(`--provider=${options.provider}`);
+		}
+		spawn("npx", args, {
 			stdio: "inherit",
 		});
 	});
