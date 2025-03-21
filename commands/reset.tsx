@@ -7,7 +7,6 @@ async function resetSystem() {
 	const args = process.argv.slice(2);
 	const dangerFlag = args.includes("--danger");
 
-	// Check if system is initialized
 	if (!fs.existsSync(CONFIG_PATH)) {
 		console.log(
 			chalk.yellow("System not initialized.") +

@@ -45,7 +45,6 @@ export async function whoami() {
 			`${chalk.bold("CLI Version:")} ${chalk.cyan(pkg.version)}`,
 		];
 
-		// Add configured providers detail
 		if (configuredProviders.length > 0) {
 			stats.push(
 				`\n${chalk.bold("Configured Providers:")}`,

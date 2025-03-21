@@ -55,7 +55,6 @@ async function setDefaultModel() {
 		const configContent = fs.readFileSync(CONFIG_PATH, "utf-8");
 		const config = TOML.parse(configContent) as Config;
 
-		// Check if default model is already configured
 		if (config.user.defaultModel && config.user.defaultProvider) {
 			console.log(
 				chalk.yellow(
@@ -78,7 +77,6 @@ async function setDefaultModel() {
 			process.exit(0);
 		}
 
-		// Update config with new default model
 		config.user.defaultModel = model;
 		config.user.defaultProvider = providerName as Provider;
 		fs.writeFileSync(CONFIG_PATH, TOML.stringify(config));
