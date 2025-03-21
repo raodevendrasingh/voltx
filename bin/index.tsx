@@ -101,6 +101,15 @@ program
 	});
 
 program
+	.command("config-show-defaults")
+	.description("Show all configured default models")
+	.action(() => {
+		spawn("npx", ["tsx", "commands/config/defaults/show.tsx"], {
+			stdio: "inherit",
+		});
+	});
+
+program
 	.command("start")
 	.argument("<type>", "Type of session to start (chat)")
 	.argument("[provider]", "Provider to use for chat")
