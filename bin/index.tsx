@@ -55,6 +55,16 @@ program
 		spawn("npx", args, { stdio: "inherit" });
 	});
 
+program
+	.command("reset")
+	.description("Reset the system and remove all configs, profiles, and chats")
+	.option("--danger", "Dangerous irreversible action")
+	.action(() => {
+		spawn("npx", ["tsx", "commands/reset.tsx", ...process.argv.slice(3)], {
+			stdio: "inherit",
+		});
+	});
+
 program.on("command:*", (operands) => {
 	console.error(chalk.red(`Unknown command: ${operands[0]}`));
 	console.log("Run with --help to see available commands.");
