@@ -20,6 +20,15 @@ program
 		spawn("npx", ["tsx", "commands/whoami.tsx"], { stdio: "inherit" });
 	});
 
+program
+	.command("config-list-providers")
+	.description("List all supported model providers")
+	.action(() => {
+		spawn("npx", ["tsx", "commands/config/list-providers.tsx"], {
+			stdio: "inherit",
+		});
+	});
+
 program.on("command:*", (operands) => {
 	console.error(chalk.red(`Unknown command: ${operands[0]}`));
 	console.log("Run with --help to see available commands.");
