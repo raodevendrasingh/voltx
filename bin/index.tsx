@@ -56,6 +56,16 @@ program
 	});
 
 program
+	.command("config")
+	.argument("<provider>", "Provider to configure")
+	.description("Configure a provider with API key and default model")
+	.action((provider) => {
+		spawn("npx", ["tsx", "commands/config/provider.tsx", provider], {
+			stdio: "inherit",
+		});
+	});
+
+program
 	.command("reset")
 	.description("Reset the system and remove all configs, profiles, and chats")
 	.option("--danger", "Dangerous irreversible action")
