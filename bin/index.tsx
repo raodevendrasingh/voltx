@@ -84,6 +84,22 @@ program
 	});
 
 program
+	.command("start")
+	.argument("type", "Type of session to start (chat)")
+	.description("Start a new chat session")
+	.action((type) => {
+		if (type !== "chat") {
+			console.error(
+				chalk.red("Only chat sessions are supported currently")
+			);
+			process.exit(1);
+		}
+		spawn("npx", ["tsx", "commands/chat/start.tsx"], {
+			stdio: "inherit",
+		});
+	});
+
+program
 	.command("reset")
 	.description("Reset the system and remove all configs, profiles, and chats")
 	.option("--danger", "Dangerous irreversible action")
