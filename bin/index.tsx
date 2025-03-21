@@ -29,6 +29,15 @@ program
 		});
 	});
 
+program
+	.command("config-list-models")
+	.description("List all supported models by provider")
+	.action(() => {
+		spawn("npx", ["tsx", "commands/config/list-models.tsx"], {
+			stdio: "inherit",
+		});
+	});
+
 program.on("command:*", (operands) => {
 	console.error(chalk.red(`Unknown command: ${operands[0]}`));
 	console.log("Run with --help to see available commands.");

@@ -7,10 +7,10 @@ export default function listProviders() {
 		let colorFn;
 		switch (provider) {
 			case "openai":
-				colorFn = chalk.cyan;
+				colorFn = chalk.yellow;
 				break;
 			case "anthropic":
-				colorFn = chalk.yellow;
+				colorFn = chalk.red;
 				break;
 			case "google":
 				colorFn = chalk.green;
@@ -22,7 +22,7 @@ export default function listProviders() {
 				colorFn = chalk.magenta;
 				break;
 			default:
-				colorFn = chalk.red;
+				colorFn = chalk.white;
 		}
 
 		console.log(`- ${colorFn.bold(provider)}`);
