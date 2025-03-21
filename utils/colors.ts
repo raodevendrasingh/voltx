@@ -3,7 +3,7 @@ import chalk from "chalk";
 export function getProviderColor(provider: string) {
 	switch (provider) {
 		case "openai":
-			return chalk.yellow;
+			return chalk.whiteBright;
 		case "anthropic":
 			return chalk.red;
 		case "google":
@@ -13,7 +13,7 @@ export function getProviderColor(provider: string) {
 		case "perplexity":
 			return chalk.magenta;
 		default:
-			return chalk.red;
+			return chalk.greenBright;
 	}
 }
 

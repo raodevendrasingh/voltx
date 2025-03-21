@@ -66,6 +66,24 @@ program
 	});
 
 program
+	.command("show-config")
+	.description("Display the current configuration")
+	.option("--unmasked", "Show unmasked API keys")
+	.action((options) => {
+		spawn(
+			"npx",
+			[
+				"tsx",
+				"commands/config/show.tsx",
+				...(options.unmasked ? ["--unmasked"] : []),
+			],
+			{
+				stdio: "inherit",
+			}
+		);
+	});
+
+program
 	.command("reset")
 	.description("Reset the system and remove all configs, profiles, and chats")
 	.option("--danger", "Dangerous irreversible action")
