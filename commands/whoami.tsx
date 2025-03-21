@@ -1,8 +1,10 @@
 import fs from "fs";
 import chalk from "chalk";
 import figlet from "figlet";
-import { CONFIG_PATH, PROFILE_PATH, CHATS_DIR } from "@/utils/config.ts";
 import { Profile } from "@/utils/types.ts";
+import pkg from "@/package.json" with { type: "json" };
+import { CONFIG_PATH, PROFILE_PATH, CHATS_DIR } from "@/utils/config.ts";
+
 
 const showAsciiArt = () => {
 	console.log(
@@ -47,6 +49,7 @@ export async function whoami() {
 		`${chalk.bold("Chats saved:")} ${chalk.red(
 			chatFiles.length.toString()
 		)}`,
+		`${chalk.bold("CLI Version:")} ${chalk.cyan(pkg.version)}`,
 	];
 
 	console.log("\n");
