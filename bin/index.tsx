@@ -43,6 +43,18 @@ program
 		});
 	});
 
+program
+	.command("config-set-default-model")
+	.description("Set the default model for a provider")
+	.option("--provider <provider>", "Specify the provider")
+	.action((options) => {
+		const args = ["tsx", "commands/config/set-default-model.tsx"];
+		if (options.provider) {
+			args.push(`--provider=${options.provider}`);
+		}
+		spawn("npx", args, { stdio: "inherit" });
+	});
+
 program.on("command:*", (operands) => {
 	console.error(chalk.red(`Unknown command: ${operands[0]}`));
 	console.log("Run with --help to see available commands.");

@@ -21,12 +21,14 @@
 		"figlet": "^1.8.0",
 		"ink": "^5.2.0",
 		"inquirer": "^12.5.0",
+		"prompts": "^2.4.2",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
 	},
 	"devDependencies": {
 		"@types/figlet": "^1.7.0",
 		"@types/node": "^22.13.10",
+		"@types/prompts": "^2.4.9",
 		"@types/react": "^18.3.19",
 		"tsx": "^4.19.3",
 		"typescript": "^5.8.2"
