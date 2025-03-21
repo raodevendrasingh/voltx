@@ -110,6 +110,24 @@ program
 	});
 
 program
+	.command("config-reset-defaults")
+	.description("Reset all configured default models")
+	.option("--hard", "Required flag for irreversible action")
+	.action((options) => {
+		spawn(
+			"npx",
+			[
+				"tsx",
+				"commands/config/defaults/reset.tsx",
+				...(options.hard ? ["--hard"] : []),
+			],
+			{
+				stdio: "inherit",
+			}
+		);
+	});
+
+program
 	.command("start")
 	.argument("<type>", "Type of session to start (chat)")
 	.argument("[provider]", "Provider to use for chat")
