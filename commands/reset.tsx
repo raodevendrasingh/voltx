@@ -3,15 +3,15 @@ import chalk from "chalk";
 import inquirer from "inquirer";
 import { BASE_DIR, CONFIG_PATH } from "@/utils/paths.ts";
 
-async function resetSystem() {
+async function resetVolt() {
 	const args = process.argv.slice(2);
 	const dangerFlag = args.includes("--danger");
 
 	if (!fs.existsSync(CONFIG_PATH)) {
 		console.log(
-			chalk.yellow("System not initialized.") +
+			chalk.yellow("Volt not initialized.") +
 				" Run " +
-				chalk.cyan("`system init`") +
+				chalk.cyan("`volt init`") +
 				" to set it up."
 		);
 		process.exit(0);
@@ -21,7 +21,7 @@ async function resetSystem() {
 		console.log(
 			`${chalk.red.bold(
 				"Warning:"
-			)} This is an irreversible command and will remove all your data related to system.\n` +
+			)} This is an irreversible command and will remove all your data related to volt.\n` +
 				`If you're sure, run with the ${chalk.bold("--danger")} flag.`
 		);
 		process.exit(0);
@@ -29,7 +29,7 @@ async function resetSystem() {
 
 	console.log(
 		`${chalk.red.bold("Caution:")} This will permanently remove:\n` +
-			`- profile\n- configs\n- chats\n- logs\n- temp files\n- cache\n`
+			`- configs\n- chats\n- logs\n- temp files\n- cache\n`
 	);
 
 	const { confirm } = await inquirer.prompt([
@@ -48,12 +48,12 @@ async function resetSystem() {
 
 	try {
 		fs.rmSync(BASE_DIR, { recursive: true, force: true });
-		console.log(chalk.green("Success! System profile cleared!"));
-		console.log("Run `system -h` for help.");
+		console.log(chalk.green("Success! volt configurations cleared!"));
+		console.log("Run `volt -h` for help.");
 	} catch (err) {
-		console.error(chalk.red("Failed to clear system profile."), err);
+		console.error(chalk.red("Failed to clear volt configurations."), err);
 		process.exit(1);
 	}
 }
 
-resetSystem();
+resetVolt();

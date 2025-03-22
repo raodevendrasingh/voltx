@@ -2,17 +2,14 @@ import chalk from "chalk";
 import figlet from "figlet";
 
 export const showBanner = () => {
+	console.log("");
 	console.log(
-		chalk.yellow(
-			figlet.textSync("System CLI", { horizontalLayout: "default" })
-		)
-	);
-};
-
-export const showAsciiArt = () => {
-	console.log(
-		chalk.green(
-			figlet.textSync("System CLI", { horizontalLayout: "default" })
+		chalk.greenBright(
+			figlet.textSync("volt", {
+				horizontalLayout: "default",
+				font: "Big Money-nw",
+				showHardBlanks: false,
+			})
 		)
 	);
 };

@@ -15,10 +15,10 @@ program
 	});
 
 program
-	.command("whoami")
+	.command("flash")
 	.description("Show user info and stats")
 	.action(() => {
-		spawn("npx", ["tsx", "commands/whoami.tsx"], { stdio: "inherit" });
+		spawn("npx", ["tsx", "commands/flash.tsx"], { stdio: "inherit" });
 	});
 
 program
@@ -148,7 +148,7 @@ program
 
 program
 	.command("reset")
-	.description("Reset the system and remove all configs, profiles, and chats")
+	.description("Reset volt configurations and remove all chats")
 	.option("--danger", "Dangerous irreversible action")
 	.action(() => {
 		spawn("npx", ["tsx", "commands/reset.tsx", ...process.argv.slice(3)], {

@@ -2,15 +2,15 @@ import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
 import { Config } from "@/utils/types.ts";
-import { showAsciiArt } from "@/utils/ascii.ts";
+import { showBanner } from "@/utils/ascii.ts";
 import { CONFIG_PATH, CHATS_DIR, pkg } from "@/utils/paths.ts";
 
-export async function whoami() {
+export async function flash() {
 	try {
 		if (!fs.existsSync(CONFIG_PATH)) {
 			console.log(
 				chalk.yellow(
-					"\nNo configuration found. Please run 'system init' first.\n"
+					"\nNo configuration found. Please run 'volt init' first.\n"
 				)
 			);
 			process.exit(1);
@@ -52,16 +52,16 @@ export async function whoami() {
 					(provider) =>
 						`  ${chalk.gray("•")} ${chalk.cyan(
 							provider
-						)} ${chalk.gray("→")} ${chalk.yellow(
-							config[provider].DEFAULT_MODEL
-						)}`
+						)} ${chalk.gray("→")} ${
+							config[provider]?.DEFAULT_MODEL
+								? chalk.yellow(config[provider].DEFAULT_MODEL)
+								: chalk.gray("(no defaults set)")
+						}`
 				)
 			);
 		}
 
-		console.log("\n");
-		showAsciiArt();
-		console.log("\n");
+		showBanner();
 		stats.forEach((stat) => console.log(stat));
 		console.log("\n");
 	} catch (error) {
@@ -70,4 +70,4 @@ export async function whoami() {
 	}
 }
 
-whoami();
+flash();

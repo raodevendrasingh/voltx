@@ -24,7 +24,7 @@ async function configureProvider() {
 	if (!fs.existsSync(CONFIG_PATH)) {
 		console.log(
 			chalk.yellow(
-				"\nNo configuration found. Please run 'system init' first.\n"
+				"\nNo configuration found. Please run 'volt init' first.\n"
 			)
 		);
 		process.exit(1);
