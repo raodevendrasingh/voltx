@@ -49,36 +49,41 @@ program
 			})
 	)
 	.addCommand(
-		new Command("set")
-			.argument("default", "Set default configuration")
-			.argument("chat", "Configure chat settings")
-			.argument("model", "Set default model")
-			.option("--provider <provider>", "Provider name")
-			.description("Set the default model for chat sessions")
-			.action((options) => {
-				if (!options.provider) {
-					console.error(
-						chalk.red(
-							"\nError: Please provide a provider name with --provider flag\n"
-						) +
-							chalk.gray("Available providers: ") +
-							providers.map((p) => chalk.bold(p)).join(", ") +
-							"\n"
-					);
-					process.exit(1);
-				}
-				spawn(
-					"npx",
-					[
-						"tsx",
-						"commands/config/set-default-model.tsx",
-						options.provider,
-					],
-					{
-						stdio: "inherit",
-					}
-				);
-			})
+		new Command("set").description("Set configuration options").addCommand(
+			new Command("default")
+				.description("Set default configurations")
+				.addCommand(
+					new Command("chat-model")
+						.description("Set the default model for chat sessions")
+						.option("--provider <provider>", "Provider name")
+						.action((options) => {
+							if (!options.provider) {
+								console.error(
+									chalk.red(
+										"\nError: Please provide a provider name with --provider flag\n"
+									) +
+										chalk.gray("Available providers: ") +
+										providers
+											.map((p) => chalk.bold(p))
+											.join(", ") +
+										"\n"
+								);
+								process.exit(1);
+							}
+							spawn(
+								"npx",
+								[
+									"tsx",
+									"commands/config/defaults/chat-model.tsx",
+									options.provider,
+								],
+								{
+									stdio: "inherit",
+								}
+							);
+						})
+				)
+		)
 	)
 	.addCommand(
 		new Command("show-defaults")
@@ -106,6 +111,26 @@ program
 					}
 				);
 			})
+	)
+	.addCommand(
+		new Command("setup").description("Setup configurations").addCommand(
+			new Command("provider")
+				.description("Configure a provider")
+				.option("--<provider>", "Directly configure specified provider")
+				.action(() => {
+					spawn(
+						"npx",
+						[
+							"tsx",
+							"commands/config/setup/provider.tsx",
+							...process.argv.slice(4),
+						],
+						{
+							stdio: "inherit",
+						}
+					);
+				})
+		)
 	);
 
 program

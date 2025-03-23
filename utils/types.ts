@@ -1,11 +1,11 @@
-import { Provider } from "@/utils/models.ts";
+import { ModelName, Provider } from "@/utils/models.ts";
 
 export interface Config {
 	user: {
 		username: string;
 		createdAt: string;
-		defaultModel: string;
-		defaultProvider: string;
+		defaultModel: ModelName;
+		defaultProvider: Provider;
 		providers: Provider[];
 	};
 	[key: string]: any;

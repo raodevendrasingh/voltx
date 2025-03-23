@@ -42,7 +42,9 @@ export async function flash() {
 			`${chalk.bold("Chats saved:")} ${chalk.red(
 				chatFiles.length.toString()
 			)}`,
-			`${chalk.bold("CLI Version:")} ${chalk.cyan(pkg.version)}`,
+			`${chalk.bold("CLI Version:")} ${chalk.cyan(
+				pkg.version
+			)}${chalk.red(" (beta)")}`,
 		];
 
 		if (configuredProviders.length > 0) {
