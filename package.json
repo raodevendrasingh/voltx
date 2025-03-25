@@ -19,15 +19,24 @@
 		"chalk": "^5.4.1",
 		"commander": "^13.1.0",
 		"figlet": "^1.8.0",
+		"ink": "^5.2.0",
+		"ink-select-input": "^6.0.0",
+		"ink-text-input": "^6.0.0",
 		"inquirer": "^12.5.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
 	},
 	"devDependencies": {
 		"@types/figlet": "^1.7.0",
-		"@types/node": "^22.13.10",
-		"@types/react": "^18.3.19",
+		"@types/node": "^22.13.13",
+		"@types/react": "^18.3.20",
+		"@types/terminal-kit": "^2.5.7",
 		"tsx": "^4.19.3",
 		"typescript": "^5.8.2"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"esbuild"
+		]
 	}
 }

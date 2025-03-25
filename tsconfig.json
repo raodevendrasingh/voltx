@@ -17,7 +17,8 @@
 		"paths": {
 			"@/*": ["./*"]
 		},
-		"resolveJsonModule": true
+		"resolveJsonModule": true,
+		"typeRoots": ["./node_modules/@types", "./"]
 	},
 	"include": ["bin/**/*", "commands/**/*", "utils/**/*"]
 }
