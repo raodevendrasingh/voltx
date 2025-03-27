@@ -11,6 +11,9 @@ importers:
       '@iarna/toml':
         specifier: ^2.2.5
         version: 2.2.5
+      blessed:
+        specifier: ^0.1.81
+        version: 0.1.81
       chalk:
         specifier: ^5.4.1
         version: 5.4.1
@@ -39,6 +42,9 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
     devDependencies:
+      '@types/blessed':
+        specifier: ^0.1.25
+        version: 0.1.25
       '@types/figlet':
         specifier: ^1.7.0
         version: 1.7.0
@@ -338,6 +344,9 @@ packages:
       '@types/node':
         optional: true
 
+  '@types/blessed@0.1.25':
+    resolution: {integrity: sha512-kQsjBgtsbJLmG6CJA+Z6Nujj+tq1fcSE3UIowbDvzQI4wWmoTV7djUDhSo5lDjgwpIN0oRvks0SA5mMdKE5eFg==}
+
   '@types/figlet@1.7.0':
     resolution: {integrity: sha512-KwrT7p/8Eo3Op/HBSIwGXOsTZKYiM9NpWRBJ5sVjWP/SmlS+oxxRvJht/FNAtliJvja44N3ul1yATgohnVBV0Q==}
 
@@ -383,6 +392,11 @@ packages:
   auto-bind@5.0.1:
     resolution: {integrity: sha512-ooviqdwwgfIfNmDwo94wlshcdzfO64XV0Cg6oDsDYBJfITDz1EngD2z7DkbvCWn+XIMsIqW27sEVF6qcpJrRcg==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
+  blessed@0.1.81:
+    resolution: {integrity: sha512-LoF5gae+hlmfORcG1M5+5XZi4LBmvlXTzwJWzUlPryN/SJdSflZvROM2TwkT0GMpq7oqT48NRd4GS7BiVBc5OQ==}
+    engines: {node: '>= 0.8.0'}
+    hasBin: true
 
   chalk@5.4.1:
     resolution: {integrity: sha512-zgVZuo2WcZgfUEmsn6eO3kINexW8RAE4maiQ8QNs8CtpPCSyMiYsULR3HQYkm3w8FIA3SberyMJMSldGsW+U3w==}
@@ -905,6 +919,10 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.13.13
 
+  '@types/blessed@0.1.25':
+    dependencies:
+      '@types/node': 22.13.13
+
   '@types/figlet@1.7.0': {}
 
   '@types/nextgen-events@1.1.4': {}
@@ -943,6 +961,8 @@ snapshots:
   ansi-styles@6.2.1: {}
 
   auto-bind@5.0.1: {}
+
+  blessed@0.1.81: {}
 
   chalk@5.4.1: {}
 
