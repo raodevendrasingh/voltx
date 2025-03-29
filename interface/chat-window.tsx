@@ -6,6 +6,7 @@ import path from "path";
 import fs from "fs";
 import chalk from "chalk";
 import { getApi } from "@/utils/get-api.ts";
+import markdown from "cli-markdown";
 
 interface ChatInterfaceProps {
 	model: ModelName;
@@ -194,7 +195,12 @@ export default function createChatInterface({
 
 		try {
 			const response = await getApi(model, provider, value.trim());
-			const aiResponse = `[${provider}]: ${response}`;
+			const parsedResponse = markdown(response, {
+				code: true,
+				preserveNewlines: true,
+				showLinks: true,
+			});
+			const aiResponse = `[${provider}]: ${parsedResponse}`;
 
 			messages.push(aiResponse + "\n");
 			chatBox.setContent(chatBox.getContent() + aiResponse + "\n\n");

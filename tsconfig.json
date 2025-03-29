@@ -18,7 +18,14 @@
 			"@/*": ["./*"]
 		},
 		"resolveJsonModule": true,
-		"typeRoots": ["./node_modules/@types", "./"]
+		"typeRoots": ["./node_modules/@types", "./", "./types"]
 	},
-	"include": ["bin/**/*", "commands/**/*", "utils/**/*"]
+	"include": [
+		"bin/**/*",
+		"commands/**/*",
+		"utils/**/*",
+		"interface/**/*",
+		"types/**/*.d.ts",
+		"index.d.ts"
+	]
 }
