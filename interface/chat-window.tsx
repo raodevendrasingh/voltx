@@ -1,7 +1,10 @@
 import { formatDate, formatFileDate } from "@/utils/date.ts";
 import { ModelName, Provider } from "@/utils/models.ts";
-import { pkg } from "@/utils/paths.ts";
+import { CHATS_DIR, pkg } from "@/utils/paths.ts";
 import blessed from "blessed";
+import path from "path";
+import fs from "fs";
+import chalk from "chalk";
 
 interface ChatInterfaceProps {
 	model: ModelName;
@@ -15,6 +18,13 @@ export default function createChatInterface({
 	const screen = blessed.screen({
 		smartCSR: true,
 	});
+
+	type Mode = "normal" | "insert" | "command";
+
+	let currentMode: Mode = "insert";
+
+	let messages: string[] = [];
+	let isCommandMode = false;
 
 	const topBar = blessed.box({
 		parent: screen,
@@ -45,7 +55,7 @@ export default function createChatInterface({
 		clickable: true, // Enable click events
 		focusable: true, // Enable focus
 		selectable: true,
-		grabKeys: true,
+		grabKeys: false, // Change to false
 		style: {
 			fg: "white",
 			bg: "black",
@@ -66,19 +76,13 @@ export default function createChatInterface({
 		mouseEvents: true,
 	});
 
+	// Modify the inputBox configuration
 	const inputBox = blessed.textbox({
 		parent: screen,
 		bottom: 1,
 		left: 0,
 		width: "100%",
 		height: "20%-1",
-		inputOnFocus: true,
-		keys: true,
-		mouse: true,
-		keyable: true,
-		clickable: true,
-		focusable: true,
-		grabKeys: false,
 		border: {
 			type: "line",
 		},
@@ -86,9 +90,14 @@ export default function createChatInterface({
 			fg: "white",
 			bg: "black",
 			border: {
-				fg: "green",
+				fg: "black",
 			},
 		},
+		input: true,
+		inputOnFocus: true,
+		keys: true,
+		mouse: true,
+		vi: false,
 	});
 
 	const bottomBar = blessed.box({
@@ -103,9 +112,22 @@ export default function createChatInterface({
 		},
 	});
 
-	let messages: string[] = [];
+	const commandInput = blessed.textbox({
+		parent: screen,
+		bottom: 0,
+		left: 0,
+		width: "30%",
+		height: 1,
+		style: {
+			fg: "black",
+			bg: "green",
+		},
+		keys: true,
+		inputOnFocus: true,
+		hidden: true,
+	});
 
-	function updateUI() {
+	function renderTopBar() {
 		const version = `volt v${pkg.version}`;
 		const status = "New Chat";
 		const timestamp = formatDate(new Date());
@@ -124,79 +146,199 @@ export default function createChatInterface({
 			)}${timestamp}`
 		);
 
-		const messageCount = `Messages: ${messages.length}`;
-		const modelInfo = `${model} (${provider})`;
-		const padding =
-			(screen.width as number) -
-			messageCount.length -
-			modelInfo.length -
-			4;
-
-		bottomBar.setContent(
-			`${" ".repeat(2)}${messageCount}${" ".repeat(
-				padding
-			)}${modelInfo}${" ".repeat(2)}`
-		);
-
 		screen.render();
 	}
 
-	// Handle focus and blur events to change border color
-	inputBox.on("focus", () => {
-		inputBox.style.border.fg = "green";
-		screen.render();
-	});
+	function updateBottomBar() {
+		if (!isCommandMode) {
+			const messageCount = `Messages: ${messages.length}`;
+			const modeInfo = `--${currentMode.toUpperCase()}--`;
+			const modelInfo = `${model} (${provider})`;
+			const padding =
+				(screen.width as number) -
+				messageCount.length -
+				modeInfo.length -
+				modelInfo.length -
+				8;
 
-	inputBox.on("blur", () => {
-		inputBox.style.border.fg = "white";
-		screen.render();
-	});
-
-	// Handle message submission
-	inputBox.on("submit", (value: string) => {
-		if (value.trim()) {
-			const userMessage = `[user]: ${value.trim()}`;
-			chatBox.setContent(chatBox.getContent() + userMessage);
-
-			// Simulate AI response
-			setTimeout(() => {
-				const aiResponse = `[${provider}]: This is a placeholder response`;
-				chatBox.setContent(
-					chatBox.getContent() + "\n" + aiResponse + "\n\n"
-				);
-				chatBox.scroll(chatBox.getScrollHeight());
-				screen.render();
-			}, 500);
-
-			inputBox.clearValue();
-			chatBox.scroll(chatBox.getScrollHeight());
-			updateUI();
-			inputBox.focus();
+			bottomBar.setContent(
+				`${" ".repeat(2)}${messageCount}${" ".repeat(
+					3
+				)}${modeInfo}${" ".repeat(padding)}${modelInfo}${" ".repeat(2)}`
+			);
 		}
 		screen.render();
+	}
+
+	function updateCommandBar(cmd: string) {
+		bottomBar.setContent(`${" ".repeat(2)}:${cmd}`);
+		screen.render();
+	}
+
+	// Replace the input submit handler
+	inputBox.on("submit", (value) => {
+		if (!value || !value.trim()) {
+			inputBox.clearValue();
+			screen.render();
+			return;
+		}
+
+		const userMessage = `[user]: ${value.trim()}`;
+		const aiResponse = `[${provider}]: This is a placeholder response`;
+
+		messages.push(userMessage);
+		chatBox.setContent(chatBox.getContent() + userMessage);
+
+		inputBox.clearValue();
+		inputBox.focus();
+
+		setTimeout(() => {
+			chatBox.setContent(
+				chatBox.getContent() + "\n" + aiResponse + "\n\n"
+			);
+			chatBox.scroll(chatBox.getScrollHeight());
+			screen.render();
+		}, 500);
+		messages.push(aiResponse + "\n");
+
+		chatBox.scroll(chatBox.getScrollHeight());
+		updateBottomBar();
+		screen.render();
 	});
 
-	screen.append(topBar);
-	screen.append(chatBox);
-	screen.append(inputBox);
-	screen.append(bottomBar);
+	renderTopBar();
 
-	updateUI();
+	function cleanup() {
+		screen.destroy();
+	}
+
+	function enterCommandMode() {
+		currentMode = "command";
+		isCommandMode = true;
+		commandInput.show();
+		commandInput.setValue(":");
+		commandInput.focus();
+		updateCommandBar("");
+	}
+
+	function exitCommandMode() {
+		isCommandMode = false;
+		commandInput.hide();
+		commandInput.setValue("");
+		inputBox.focus();
+		renderTopBar();
+	}
+
+	// Modify enterInsertMode to properly handle input
+	function enterInsertMode() {
+		currentMode = "insert";
+		inputBox.focus();
+		inputBox.style.border.fg = "green";
+		chatBox.style.border.fg = "gray";
+		updateBottomBar();
+	}
+
+	function enterNormalMode() {
+		currentMode = "normal";
+		inputBox.cancel(); // Cancel input reading
+		chatBox.focus();
+		inputBox.style.border.fg = "gray";
+		chatBox.style.border.fg = "white";
+		updateBottomBar();
+	}
+
+	commandInput.key(["escape"], () => {
+		exitCommandMode();
+	});
+
+	commandInput.key(["enter"], () => {
+		const command = commandInput.getValue().trim();
+		if (command.startsWith(":")) {
+			handleCommand(command);
+		}
+		exitCommandMode();
+		screen.render();
+	});
+
+	function handleCommand(cmd: string) {
+		switch (cmd) {
+			case ":i":
+				exitCommandMode();
+				enterInsertMode();
+				break;
+
+			case ":q":
+				cleanup();
+				console.log(chalk.red("Chat ended without saving!"));
+				process.exit(0);
+				break;
+
+			case ":wq":
+				if (messages.length > 0) {
+					const firstQuery = messages[0]
+						.replace(/^\[.*?\]:\s*/, "")
+						.slice(0, 30)
+						.replace(/[^a-zA-Z0-9]/g, "_");
+
+					const filename = `${firstQuery}_${formatFileDate(
+						new Date()
+					)}.txt`;
+					const filePath = path.join(CHATS_DIR, filename);
+
+					// Format messages for saving
+					const formattedMessages = messages.join("\n");
+
+					fs.writeFileSync(filePath, formattedMessages);
+					cleanup();
+					console.log(
+						chalk.greenBright(`Chat saved at path ${filePath}`)
+					);
+					process.exit(0);
+				}
+				break;
+
+			default:
+				// Handle invalid commands
+				break;
+		}
+	}
+
+	// Modify screen key handlers
+	screen.key(":", () => {
+		if (!isCommandMode) {
+			enterCommandMode();
+			screen.render();
+		}
+	});
 
 	screen.key(["escape"], () => {
-		if (screen.focused === chatBox) {
-			inputBox.focus();
-			inputBox.style.border.fg = "green";
-			chatBox.style.border.fg = "gray";
+		if (isCommandMode) {
+			exitCommandMode();
+		} else if (currentMode === "insert") {
+			enterNormalMode();
 		}
 		screen.render();
+	});
+
+	screen.key(["tab"], () => {
+		if (!isCommandMode) {
+			if (screen.focused === inputBox) {
+				chatBox.focus();
+				chatBox.style.border.fg = "white";
+				inputBox.style.border.fg = "gray";
+			} else {
+				inputBox.focus();
+				inputBox.style.border.fg = "green";
+				chatBox.style.border.fg = "gray";
+			}
+			screen.render();
+		}
 	});
 
 	screen.key(["q", "C-c"], () => {
 		return process.exit(0);
 	});
 
-	inputBox.focus(); // Set initial focus
-
+	enterInsertMode();
 	screen.render();
 }
