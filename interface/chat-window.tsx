@@ -5,6 +5,7 @@ import blessed from "blessed";
 import path from "path";
 import fs from "fs";
 import chalk from "chalk";
+import { getApi } from "@/utils/get-api.ts";
 
 interface ChatInterfaceProps {
 	model: ModelName;
@@ -176,7 +177,7 @@ export default function createChatInterface({
 	}
 
 	// Replace the input submit handler
-	inputBox.on("submit", (value) => {
+	inputBox.on("submit", async (value) => {
 		if (!value || !value.trim()) {
 			inputBox.clearValue();
 			screen.render();
@@ -184,26 +185,32 @@ export default function createChatInterface({
 		}
 
 		const userMessage = `[user]: ${value.trim()}`;
-		const aiResponse = `[${provider}]: This is a placeholder response`;
-
 		messages.push(userMessage);
-		chatBox.setContent(chatBox.getContent() + userMessage);
+		chatBox.setContent(chatBox.getContent() + userMessage + "\n");
 
 		inputBox.clearValue();
 		inputBox.focus();
-
-		setTimeout(() => {
-			chatBox.setContent(
-				chatBox.getContent() + "\n" + aiResponse + "\n\n"
-			);
-			chatBox.scroll(chatBox.getScrollHeight());
-			screen.render();
-		}, 500);
-		messages.push(aiResponse + "\n");
-
-		chatBox.scroll(chatBox.getScrollHeight());
-		updateBottomBar();
 		screen.render();
+
+		try {
+			const response = await getApi(model, provider, value.trim());
+			const aiResponse = `[${provider}]: ${response}`;
+
+			messages.push(aiResponse + "\n");
+			chatBox.setContent(chatBox.getContent() + aiResponse + "\n\n");
+
+			chatBox.scroll(chatBox.getScrollHeight());
+			updateBottomBar();
+			screen.render();
+		} catch (error: any) {
+			const errorMsg = `[system]: Error getting response from ${provider}: ${error.message}\n`;
+			chatBox.setContent(chatBox.getContent() + errorMsg + "\n");
+			messages.push(errorMsg);
+
+			chatBox.scroll(chatBox.getScrollHeight());
+			updateBottomBar();
+			screen.render();
+		}
 	});
 
 	renderTopBar();
