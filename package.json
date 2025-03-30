@@ -1,6 +1,6 @@
 {
 	"name": "voltx",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "A CLI tool to converse with popular LLMs via terminal",
 	"main": "index.js",
 	"type": "module",
@@ -11,7 +11,7 @@
 		"dev": "tsx bin/index.ts"
 	},
 	"keywords": [],
-	"author": "raodevendrasingh",
+	"author": "tminusdev",
 	"license": "UNLICENSED",
 	"packageManager": "pnpm@10.7.0",
 	"dependencies": {
