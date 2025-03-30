@@ -173,7 +173,7 @@ program
 
 program
 	.command("reset")
-	.description("Reset volt configurations and remove all chats")
+	.description("Reset voltx configurations and remove all chats")
 	.option("--danger", "Dangerous irreversible action")
 	.action(() => {
 		spawn("npx", ["tsx", "commands/reset.tsx", ...process.argv.slice(3)], {

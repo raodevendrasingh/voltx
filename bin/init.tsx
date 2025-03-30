@@ -137,7 +137,7 @@ const run = async () => {
 				"\nConfiguration already exists, skipping initialization."
 			)
 		);
-		console.log(chalk.gray('For help, run "volt help"\n'));
+		console.log(chalk.gray('For help, run "voltx help"\n'));
 		process.exit(0);
 	}
 
@@ -154,7 +154,7 @@ const run = async () => {
 		},
 	};
 
-	logEvent("info", `User initialized volt with username: ${username}`);
+	logEvent("info", `User initialized voltx with username: ${username}`);
 
 	let shouldContinue = true;
 	while (shouldContinue) {

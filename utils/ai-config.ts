@@ -18,7 +18,7 @@ for (const key of requiredKeys) {
 }
 
 export const systemPrompt =
-	"You are a helpful AI assistant named volt. You can answer questions, provide explanations, and assist with various tasks. Your goal is to be as helpful and informative as possible. If you don't know the answer, it's okay to say you don't know.";
+	"You are a helpful AI assistant named voltx. You can answer questions, provide explanations, and assist with various tasks. Your goal is to be as helpful and informative as possible. If you don't know the answer, it's okay to say you don't know.";
 
 export const deepseek = new OpenAI({
 	apiKey: process.env["DEEPSEEK_API_KEY"],

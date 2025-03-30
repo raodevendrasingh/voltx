@@ -5,7 +5,7 @@ export const showBanner = () => {
 	console.log("");
 	console.log(
 		chalk.greenBright(
-			figlet.textSync("volt", {
+			figlet.textSync("voltx", {
 				horizontalLayout: "default",
 				font: "Big Money-nw",
 				showHardBlanks: false,

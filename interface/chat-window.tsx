@@ -131,7 +131,7 @@ export default function createChatInterface({
 	});
 
 	function renderTopBar() {
-		const version = `volt v${pkg.version}`;
+		const version = `voltx v${pkg.version}`;
 		const status = "New Chat";
 		const timestamp = formatDate(new Date());
 

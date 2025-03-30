@@ -16,7 +16,7 @@ async function showConfig() {
 		if (!fs.existsSync(CONFIG_PATH)) {
 			console.log(
 				chalk.yellow(
-					"\nNo configuration found. Please run 'volt init' first.\n"
+					"\nNo configuration found. Please run 'voltx init' first.\n"
 				)
 			);
 			process.exit(1);
@@ -39,7 +39,7 @@ async function showConfig() {
 		}
 
 		const output = TOML.stringify(displayConfig);
-		console.log(chalk.bold("\nVolt Configuration\n"));
+		console.log(chalk.bold("\nVoltx Configuration\n"));
 
 		let lastSection = "";
 		output.split("\n").forEach((line) => {
