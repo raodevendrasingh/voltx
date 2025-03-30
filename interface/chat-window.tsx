@@ -7,6 +7,7 @@ import fs from "fs";
 import chalk from "chalk";
 import { getApi } from "@/utils/get-api.ts";
 import markdown from "cli-markdown";
+import { getProviderColor, modelColor } from "@/utils/colors.ts";
 
 interface ChatInterfaceProps {
 	model: ModelName;
@@ -185,8 +186,9 @@ export default function createChatInterface({
 			return;
 		}
 
-		const userMessage = `[user]: ${value.trim()}`;
-		messages.push(userMessage);
+		const userMessage = `${modelColor("[user]")}: ${value.trim()}`;
+		const userQuery = `[user]: ${value.trim()}`;
+		messages.push(userQuery);
 		chatBox.setContent(chatBox.getContent() + userMessage + "\n");
 
 		inputBox.clearValue();
@@ -197,13 +199,24 @@ export default function createChatInterface({
 			const response = await getApi(model, provider, value.trim());
 			const parsedResponse = markdown(response, {
 				code: true,
-				preserveNewlines: true,
 				showLinks: true,
 			});
-			const aiResponse = `[${provider}]: ${parsedResponse}`;
 
-			messages.push(aiResponse + "\n");
-			chatBox.setContent(chatBox.getContent() + aiResponse + "\n\n");
+			const providerColor = getProviderColor(provider);
+			const aiResponse = `${providerColor(
+				`[${provider}]`
+			)}: ${parsedResponse}`;
+
+			const separator = chalk.gray(
+				"─".repeat((screen.width as number) - 3)
+			);
+
+			const textResonse = `[${provider}]: ${response}`;
+
+			messages.push(textResonse);
+			chatBox.setContent(
+				chatBox.getContent() + aiResponse + separator + "\n\n"
+			);
 
 			chatBox.scroll(chatBox.getScrollHeight());
 			updateBottomBar();
