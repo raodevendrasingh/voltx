@@ -7,6 +7,7 @@ import { logEvent } from "@/utils/logger.ts";
 import { CONFIG_PATH } from "@/utils/paths.ts";
 import { getProviderColor, modelColor } from "@/utils/colors.ts";
 import { models, providers, Provider, ModelName } from "@/utils/models.ts";
+import createChatInterface from "@/interface/chat-window.tsx";
 
 async function selectProvider(): Promise<Provider | null> {
 	const { provider } = await inquirer.prompt([
@@ -89,7 +90,11 @@ async function startChat() {
 							`from ${getProviderColor(provider)(provider)}...\n`
 					)
 				);
-				process.exit(0);
+				createChatInterface({
+					model: selectedModel,
+					provider: provider,
+				});
+				return;
 			}
 
 			// Check provider's default model
@@ -107,7 +112,11 @@ async function startChat() {
 							`from ${getProviderColor(provider)(provider)}...\n`
 					)
 				);
-				process.exit(0);
+				createChatInterface({
+					model: providerConfig.DEFAULT_MODEL,
+					provider: provider,
+				});
+				return;
 			}
 		}
 
@@ -132,7 +141,11 @@ async function startChat() {
 						)}...\n`
 				)
 			);
-			process.exit(0);
+			createChatInterface({
+				model: config.user.defaultModel,
+				provider: config.user.defaultProvider,
+			});
+			return;
 		}
 
 		// If no defaults or using temp mode, prompt for selection
@@ -198,7 +211,10 @@ async function startChat() {
 			)
 		);
 
-		process.exit(0);
+		createChatInterface({
+			model: selectedModel,
+			provider: selectedProvider,
+		});
 	} catch (error) {
 		console.error(chalk.red("Error starting chat:"), error);
 		process.exit(1);
