@@ -1,7 +1,7 @@
 import fs from "fs";
 import chalk from "chalk";
 import inquirer from "inquirer";
-import { BASE_DIR, CONFIG_PATH } from "@/utils/paths.ts";
+import { BASE_DIR, CONFIG_PATH } from "@/utils/paths";
 
 async function resetVoltx() {
 	const args = process.argv.slice(2);
@@ -12,7 +12,7 @@ async function resetVoltx() {
 			chalk.yellow("Voltx not initialized.") +
 				" Run " +
 				chalk.cyan("`voltx init`") +
-				" to set it up."
+				" to set it up.",
 		);
 		process.exit(0);
 	}
@@ -20,16 +20,16 @@ async function resetVoltx() {
 	if (!dangerFlag) {
 		console.log(
 			`${chalk.red.bold(
-				"Warning:"
+				"Warning:",
 			)} This is an irreversible command and will remove all your data related to voltx.\n` +
-				`If you're sure, run with the ${chalk.bold("--danger")} flag.`
+				`If you're sure, run with the ${chalk.bold("--danger")} flag.`,
 		);
 		process.exit(0);
 	}
 
 	console.log(
 		`${chalk.red.bold("Caution:")} This will permanently remove:\n` +
-			`- configs\n- chats\n- logs\n- temp files\n- cache\n`
+			`- configs\n- chats\n- logs\n- temp files\n- cache\n`,
 	);
 
 	const { confirm } = await inquirer.prompt([

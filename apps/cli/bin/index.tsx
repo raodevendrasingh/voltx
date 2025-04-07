@@ -2,8 +2,8 @@
 import { Command, program } from "commander";
 import { spawn } from "child_process";
 import chalk from "chalk";
-import { pkg } from "@/utils/paths.ts";
-import { providers } from "@/utils/models.ts";
+import { pkg } from "@/utils/paths";
+import { providers } from "@/utils/models";
 
 program.version(pkg.version, "-v, --version", "Display CLI version");
 
@@ -31,14 +31,14 @@ program
 				spawn("npx", ["tsx", "commands/config/list-providers.tsx"], {
 					stdio: "inherit",
 				});
-			})
+			}),
 	)
 	.addCommand(
 		new Command("list-models")
 			.description("List all supported models by provider")
 			.option(
 				"--provider <provider>",
-				"Specify a provider to list models for"
+				"Specify a provider to list models for",
 			)
 			.action((options) => {
 				const args = ["tsx", "commands/config/list-models.tsx"];
@@ -46,7 +46,7 @@ program
 					args.push(`--provider=${options.provider}`);
 				}
 				spawn("npx", args, { stdio: "inherit" });
-			})
+			}),
 	)
 	.addCommand(
 		new Command("set").description("Set configuration options").addCommand(
@@ -60,13 +60,13 @@ program
 							if (!options.provider) {
 								console.error(
 									chalk.red(
-										"\nError: Please provide a provider name with --provider flag\n"
+										"\nError: Please provide a provider name with --provider flag\n",
 									) +
 										chalk.gray("Available providers: ") +
 										providers
 											.map((p) => chalk.bold(p))
 											.join(", ") +
-										"\n"
+										"\n",
 								);
 								process.exit(1);
 							}
@@ -79,11 +79,11 @@ program
 								],
 								{
 									stdio: "inherit",
-								}
+								},
 							);
-						})
-				)
-		)
+						}),
+				),
+		),
 	)
 	.addCommand(
 		new Command("show-defaults")
@@ -92,7 +92,7 @@ program
 				spawn("npx", ["tsx", "commands/config/defaults/show.tsx"], {
 					stdio: "inherit",
 				});
-			})
+			}),
 	)
 	.addCommand(
 		new Command("reset-defaults")
@@ -108,9 +108,9 @@ program
 					],
 					{
 						stdio: "inherit",
-					}
+					},
 				);
-			})
+			}),
 	)
 	.addCommand(
 		new Command("setup").description("Setup configurations").addCommand(
@@ -127,10 +127,10 @@ program
 						],
 						{
 							stdio: "inherit",
-						}
+						},
 					);
-				})
-		)
+				}),
+		),
 	);
 
 program
@@ -148,7 +148,7 @@ program
 			],
 			{
 				stdio: "inherit",
-			}
+			},
 		);
 	});
 
@@ -161,7 +161,7 @@ program
 	.action((type, provider, options) => {
 		if (type !== "chat") {
 			console.error(
-				chalk.red("Only chat sessions are supported currently")
+				chalk.red("Only chat sessions are supported currently"),
 			);
 			process.exit(1);
 		}

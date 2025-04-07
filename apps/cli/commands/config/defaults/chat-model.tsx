@@ -2,11 +2,11 @@ import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
 import inquirer from "inquirer";
-import { Config } from "@/utils/types.ts";
-import { CONFIG_PATH } from "@/utils/paths.ts";
-import { models, providers, Provider, ModelName } from "@/utils/models.ts";
-import { getProviderColor, modelColor } from "@/utils/colors.ts";
-import { logEvent } from "@/utils/logger.ts";
+import { Config } from "@/utils/types";
+import { CONFIG_PATH } from "@/utils/paths";
+import { models, providers, Provider, ModelName } from "@/utils/models";
+import { getProviderColor, modelColor } from "@/utils/colors";
+import { logEvent } from "@/utils/logger";
 
 async function selectModel(provider: Provider): Promise<ModelName | null> {
 	const { model } = await inquirer.prompt([
@@ -14,7 +14,7 @@ async function selectModel(provider: Provider): Promise<ModelName | null> {
 			type: "list",
 			name: "model",
 			message: `Select default model from ${getProviderColor(provider)(
-				provider
+				provider,
 			)}:`,
 			choices: [
 				...models[provider].map((m) => ({
@@ -38,7 +38,7 @@ async function configureProvider(provider: Provider): Promise<{
 			type: "confirm",
 			name: "configure",
 			message: `Would you like to configure ${getProviderColor(provider)(
-				provider
+				provider,
 			)}?`,
 			default: false,
 		},
@@ -54,7 +54,7 @@ async function configureProvider(provider: Provider): Promise<{
 			type: "input",
 			name: "apiKey",
 			message: `Enter API key for ${getProviderColor(provider)(
-				provider
+				provider,
 			)}:`,
 			validate: (input: string) =>
 				input.trim() !== "" || "API key is required",
@@ -82,7 +82,7 @@ async function setDefaultModel() {
 				chalk.red("\nError: Invalid provider\n") +
 					chalk.gray("Available providers: ") +
 					providers.map((p) => getProviderColor(p)(p)).join(", ") +
-					"\n"
+					"\n",
 			);
 			process.exit(1);
 		}
@@ -90,8 +90,8 @@ async function setDefaultModel() {
 		if (!fs.existsSync(CONFIG_PATH)) {
 			console.log(
 				chalk.yellow(
-					"\nNo configuration found. Please run 'voltx init' first.\n"
-				)
+					"\nNo configuration found. Please run 'voltx init' first.\n",
+				),
 			);
 			process.exit(1);
 		}
@@ -104,13 +104,13 @@ async function setDefaultModel() {
 			console.log(
 				chalk.yellow(
 					`\nProvider ${getProviderColor(providerName as Provider)(
-						providerName
-					)} is not configured.`
-				)
+						providerName,
+					)} is not configured.`,
+				),
 			);
 
 			const providerConfig = await configureProvider(
-				providerName as Provider
+				providerName as Provider,
 			);
 			if (!providerConfig) {
 				process.exit(0);
@@ -127,19 +127,19 @@ async function setDefaultModel() {
 
 			logEvent(
 				"info",
-				`User configured provider ${providerName} and set default model: ${providerConfig.DEFAULT_MODEL}`
+				`User configured provider ${providerName} and set default model: ${providerConfig.DEFAULT_MODEL}`,
 			);
 
 			console.log(
 				chalk.green(
 					`\nSuccess! Provider ${getProviderColor(
-						providerName as Provider
+						providerName as Provider,
 					)(
-						providerName
+						providerName,
 					)} configured and default model set to ${modelColor(
-						providerConfig.DEFAULT_MODEL
-					)}\n`
-				)
+						providerConfig.DEFAULT_MODEL,
+					)}\n`,
+				),
 			);
 			process.exit(0);
 		}
@@ -149,9 +149,9 @@ async function setDefaultModel() {
 			console.log(
 				chalk.yellow(
 					`\nProvider ${getProviderColor(providerName as Provider)(
-						providerName
-					)} is missing API key configuration.`
-				)
+						providerName,
+					)} is missing API key configuration.`,
+				),
 			);
 			process.exit(1);
 		}
@@ -160,7 +160,7 @@ async function setDefaultModel() {
 		const model = await selectModel(providerName as Provider);
 		if (!model) {
 			console.log(
-				chalk.yellow("\nExiting without setting default model.")
+				chalk.yellow("\nExiting without setting default model."),
 			);
 			process.exit(0);
 		}
@@ -174,18 +174,18 @@ async function setDefaultModel() {
 
 		logEvent(
 			"info",
-			`User configured default model: ${model} from provider ${providerName}`
+			`User configured default model: ${model} from provider ${providerName}`,
 		);
 
 		console.log(
 			chalk.green(
 				`\nDefault model configured successfully: ${modelColor(
-					model
+					model,
 				)} ` +
 					`from ${getProviderColor(providerName as Provider)(
-						providerName
-					)}\n`
-			)
+						providerName,
+					)}\n`,
+			),
 		);
 	} catch (error) {
 		console.error(chalk.red("Error setting default model:"), error);

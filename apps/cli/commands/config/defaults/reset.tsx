@@ -1,10 +1,10 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import { Config } from "@/utils/types.ts";
-import { CONFIG_PATH } from "@/utils/paths.ts";
-import { Provider } from "@/utils/models.ts";
-import { logEvent } from "@/utils/logger.ts";
+import { Config } from "@/utils/types";
+import { CONFIG_PATH } from "@/utils/paths";
+import { Provider } from "@/utils/models";
+import { logEvent } from "@/utils/logger";
 
 async function resetDefaults() {
 	try {
@@ -14,8 +14,8 @@ async function resetDefaults() {
 		if (!fs.existsSync(CONFIG_PATH)) {
 			console.log(
 				chalk.yellow(
-					"\nNo configuration found. Please run 'voltx init' first.\n"
-				)
+					"\nNo configuration found. Please run 'voltx init' first.\n",
+				),
 			);
 			process.exit(1);
 		}
@@ -23,13 +23,13 @@ async function resetDefaults() {
 		if (!hardFlag) {
 			console.log(
 				`${chalk.red.bold(
-					"Warning:"
+					"Warning:",
 				)} This command will reset all configured default models:\n` +
 					"- Global default model and provider\n" +
 					"- Provider-specific default models\n\n" +
 					`If you're sure, run with the ${chalk.bold(
-						"--hard"
-					)} flag.\n`
+						"--hard",
+					)} flag.\n`,
 			);
 			process.exit(0);
 		}
@@ -56,8 +56,8 @@ async function resetDefaults() {
 
 		console.log(
 			chalk.green(
-				"\nAll default model configurations have been reset successfully!\n"
-			)
+				"\nAll default model configurations have been reset successfully!\n",
+			),
 		);
 	} catch (error) {
 		console.error(chalk.red("Error resetting defaults:"), error);

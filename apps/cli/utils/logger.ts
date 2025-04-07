@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import chalk from "chalk";
-import { LOGS_DIR } from "@/utils/paths.ts";
+import { LOGS_DIR } from "@/utils/paths";
 
 export const logEvent = (level: "info" | "warn" | "error", message: string) => {
 	const timestamp = new Date().toISOString();
@@ -13,7 +13,7 @@ export const logEvent = (level: "info" | "warn" | "error", message: string) => {
 
 	const logFile = path.join(
 		LOGS_DIR,
-		`logs_${new Date().toISOString().slice(0, 10)}`
+		`logs_${new Date().toISOString().slice(0, 10)}`,
 	);
 	fs.appendFileSync(logFile, logMessage);
 

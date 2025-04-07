@@ -1,43 +1,17 @@
 {
 	"name": "voltx",
-	"version": "0.3.0",
-	"description": "A CLI tool to converse with popular LLMs via terminal",
-	"main": "index.js",
-	"type": "module",
-	"bin": {
-		"voltx": "./bin/index.tsx"
-	},
-	"scripts": {
-		"dev": "tsx bin/index.ts"
-	},
-	"keywords": [],
-	"author": "tminusdev",
-	"license": "UNLICENSED",
+	"private": true,
 	"packageManager": "pnpm@10.7.0",
-	"dependencies": {
-		"@iarna/toml": "^2.2.5",
-		"blessed": "^0.1.81",
-		"chalk": "^5.4.1",
-		"cli-markdown": "^3.4.0",
-		"commander": "^13.1.0",
-		"dotenv": "^16.4.7",
-		"figlet": "^1.8.0",
-		"ink": "^5.2.0",
-		"ink-select-input": "^6.0.0",
-		"ink-text-input": "^6.0.0",
-		"inquirer": "^12.5.0",
-		"openai": "^4.90.0",
-		"react": "18.3.1",
-		"react-dom": "18.3.1"
+	"scripts": {
+		"build": "turbo run build",
+		"dev": "turbo run dev",
+		"lint": "turbo run lint",
+		"clean": "turbo run clean",
+		"format": "prettier --write \"**/*.{ts,tsx,md}\""
 	},
 	"devDependencies": {
-		"@types/blessed": "^0.1.25",
-		"@types/figlet": "^1.7.0",
-		"@types/node": "^22.13.14",
-		"@types/react": "^18.3.20",
-		"@types/terminal-kit": "^2.5.7",
-		"tsx": "^4.19.3",
-		"typescript": "^5.8.2"
+		"turbo": "latest",
+		"prettier": "latest"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [

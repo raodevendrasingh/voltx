@@ -5,13 +5,13 @@ import {
 	openai,
 	perplexity,
 	systemPrompt,
-} from "./ai-config.ts";
-import { ModelName, Provider } from "./models.ts";
+} from "./ai-config";
+import { ModelName, Provider } from "./models";
 
 export async function getApi(
 	model: ModelName,
 	provider: Provider,
-	query: string
+	query: string,
 ): Promise<string> {
 	switch (provider) {
 		case "openai":

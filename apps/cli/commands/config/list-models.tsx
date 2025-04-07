@@ -1,5 +1,5 @@
-import { getProviderColor, modelColor } from "@/utils/colors.ts";
-import { models, providers, Provider } from "@/utils/models.ts";
+import { getProviderColor, modelColor } from "@/utils/colors";
+import { models, providers, Provider } from "@/utils/models";
 import chalk from "chalk";
 
 function listModels() {
@@ -14,7 +14,7 @@ function listModels() {
 			`${chalk.red("Error:")} Invalid provider "${providerName}".` +
 				`Available providers: ${providers
 					.map((p) => chalk.bold(p))
-					.join(", ")}`
+					.join(", ")}`,
 		);
 		process.exit(1);
 	}

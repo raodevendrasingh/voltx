@@ -10,12 +10,12 @@ import {
 	CHATS_DIR,
 	TEMP_DIR,
 	CACHE_DIR,
-} from "@/utils/paths.ts";
-import { models, providers, Provider, ModelName } from "@/utils/models.ts";
-import { getProviderColor, modelColor } from "@/utils/colors.ts";
-import { logEvent } from "@/utils/logger.ts";
-import { Config } from "@/utils/types.ts";
-import { showBanner } from "@/utils/ascii.ts";
+} from "@/utils/paths";
+import { models, providers, Provider, ModelName } from "@/utils/models";
+import { getProviderColor, modelColor } from "@/utils/colors";
+import { logEvent } from "@/utils/logger";
+import { Config } from "@/utils/types";
+import { showBanner } from "@/utils/ascii";
 
 const createDirectories = () => {
 	[BASE_DIR, LOGS_DIR, CHATS_DIR, TEMP_DIR, CACHE_DIR].forEach((dir) => {
@@ -45,10 +45,10 @@ const askUsername = async (): Promise<string> => {
 };
 
 const selectProvider = async (
-	configuredProviders: Provider[] = []
+	configuredProviders: Provider[] = [],
 ): Promise<Provider | null> => {
 	const availableProviders = providers.filter(
-		(p) => !configuredProviders.includes(p)
+		(p) => !configuredProviders.includes(p),
 	);
 
 	if (availableProviders.length === 0) {
@@ -78,7 +78,7 @@ const selectModel = async (provider: Provider): Promise<ModelName> => {
 			type: "list",
 			name: "model",
 			message: `Select default model for ${getProviderColor(provider)(
-				provider
+				provider,
 			)}:`,
 			choices: providerModels.map((m) => ({
 				name: modelColor(m),
@@ -90,7 +90,7 @@ const selectModel = async (provider: Provider): Promise<ModelName> => {
 };
 
 const configureProvider = async (
-	provider: Provider
+	provider: Provider,
 ): Promise<{
 	API_KEY: string;
 	DEFAULT_MODEL: ModelName;
@@ -100,7 +100,7 @@ const configureProvider = async (
 			type: "input",
 			name: "apiKey",
 			message: `Enter API key for ${getProviderColor(provider)(
-				provider
+				provider,
 			)}:`,
 			validate: (input: string) =>
 				input.trim() !== "" || "API key is required",
@@ -134,8 +134,8 @@ const run = async () => {
 	if (fs.existsSync(CONFIG_PATH)) {
 		console.log(
 			chalk.gray(
-				"\nConfiguration already exists, skipping initialization."
-			)
+				"\nConfiguration already exists, skipping initialization.",
+			),
 		);
 		console.log(chalk.gray('For help, run "voltx help"\n'));
 		process.exit(0);
@@ -167,7 +167,7 @@ const run = async () => {
 
 		logEvent(
 			"info",
-			`User ${username} configured provider: ${provider} with model: ${providerConfig.DEFAULT_MODEL}`
+			`User ${username} configured provider: ${provider} with model: ${providerConfig.DEFAULT_MODEL}`,
 		);
 
 		shouldContinue = await askToContinue();

@@ -1,18 +1,18 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import { Config } from "@/utils/types.ts";
-import { CONFIG_PATH } from "@/utils/paths.ts";
-import { Provider, providers } from "@/utils/models.ts";
-import { getProviderColor, modelColor } from "@/utils/colors.ts";
+import { Config } from "@/utils/types";
+import { CONFIG_PATH } from "@/utils/paths";
+import { Provider, providers } from "@/utils/models";
+import { getProviderColor, modelColor } from "@/utils/colors";
 
 async function showDefaults() {
 	try {
 		if (!fs.existsSync(CONFIG_PATH)) {
 			console.log(
 				chalk.yellow(
-					"\nNo configuration found. Please run 'voltx init' first.\n"
-				)
+					"\nNo configuration found. Please run 'voltx init' first.\n",
+				),
 			);
 			process.exit(1);
 		}
@@ -27,11 +27,11 @@ async function showDefaults() {
 		if (config.user.defaultModel && config.user.defaultProvider) {
 			console.log(
 				`${chalk.gray("→")} Default Model: ${modelColor(
-					config.user.defaultModel
+					config.user.defaultModel,
 				)} ` +
 					`from ${getProviderColor(config.user.defaultProvider)(
-						config.user.defaultProvider
-					)}`
+						config.user.defaultProvider,
+					)}`,
 			);
 		} else {
 			console.log(chalk.yellow("No global defaults configured"));
@@ -46,8 +46,8 @@ async function showDefaults() {
 			if (providerConfig?.DEFAULT_MODEL) {
 				console.log(
 					`${chalk.gray("→")} Default Model: ${modelColor(
-						providerConfig.DEFAULT_MODEL
-					)}`
+						providerConfig.DEFAULT_MODEL,
+					)}`,
 				);
 			} else {
 				console.log(chalk.yellow("No defaults configured"));

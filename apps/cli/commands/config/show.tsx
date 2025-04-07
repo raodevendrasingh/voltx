@@ -1,10 +1,10 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import { Config } from "@/utils/types.ts";
-import { CONFIG_PATH } from "@/utils/paths.ts";
-import { Provider } from "@/utils/models.ts";
-import { getProviderColor } from "@/utils/colors.ts";
+import { Config } from "@/utils/types";
+import { CONFIG_PATH } from "@/utils/paths";
+import { Provider } from "@/utils/models";
+import { getProviderColor } from "@/utils/colors";
 
 function maskApiKey(key: string): string {
 	if (key.length <= 5) return "*".repeat(key.length);
@@ -16,8 +16,8 @@ async function showConfig() {
 		if (!fs.existsSync(CONFIG_PATH)) {
 			console.log(
 				chalk.yellow(
-					"\nNo configuration found. Please run 'voltx init' first.\n"
-				)
+					"\nNo configuration found. Please run 'voltx init' first.\n",
+				),
 			);
 			process.exit(1);
 		}
@@ -32,7 +32,7 @@ async function showConfig() {
 			config.user.providers.forEach((provider: Provider) => {
 				if (displayConfig[provider]?.API_KEY) {
 					displayConfig[provider].API_KEY = maskApiKey(
-						displayConfig[provider].API_KEY
+						displayConfig[provider].API_KEY,
 					);
 				}
 			});
@@ -52,7 +52,7 @@ async function showConfig() {
 				console.log(
 					section === "user"
 						? chalk.cyan(line)
-						: getProviderColor(section as Provider)(line)
+						: getProviderColor(section as Provider)(line),
 				);
 			} else if (line.includes("API_KEY")) {
 				const [key, value] = line.split(" = ");
@@ -66,8 +66,8 @@ async function showConfig() {
 		if (!showUnmasked) {
 			console.log(
 				chalk.gray(
-					"\nNote: API keys are masked. Use --unmasked to show full keys.\n"
-				)
+					"\nNote: API keys are masked. Use --unmasked to show full keys.\n",
+				),
 			);
 		}
 	} catch (error) {

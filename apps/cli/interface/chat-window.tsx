@@ -1,13 +1,13 @@
-import { formatDate, formatFileDate } from "@/utils/date.ts";
-import { ModelName, Provider } from "@/utils/models.ts";
-import { CHATS_DIR, pkg } from "@/utils/paths.ts";
+import { formatDate, formatFileDate } from "@/utils/date";
+import { ModelName, Provider } from "@/utils/models";
+import { CHATS_DIR, pkg } from "@/utils/paths";
 import blessed from "blessed";
 import path from "path";
 import fs from "fs";
 import chalk from "chalk";
-import { getApi } from "@/utils/get-api.ts";
+import { getApi } from "@/utils/get-api";
 import markdown from "cli-markdown";
-import { getProviderColor, modelColor } from "@/utils/colors.ts";
+import { getProviderColor, modelColor } from "@/utils/colors";
 
 interface ChatInterfaceProps {
 	model: ModelName;
@@ -138,15 +138,15 @@ export default function createChatInterface({
 		const leftPadding = 2;
 		const rightPadding = (screen.width as number) - timestamp.length - 2;
 		const centerPosition = Math.floor(
-			((screen.width as number) - status.length) / 2
+			((screen.width as number) - status.length) / 2,
 		);
 
 		topBar.setContent(
 			`${" ".repeat(leftPadding)}${version}${" ".repeat(
-				centerPosition - version.length - leftPadding
+				centerPosition - version.length - leftPadding,
 			)}${status}${" ".repeat(
-				rightPadding - centerPosition - status.length
-			)}${timestamp}`
+				rightPadding - centerPosition - status.length,
+			)}${timestamp}`,
 		);
 
 		screen.render();
@@ -166,8 +166,8 @@ export default function createChatInterface({
 
 			bottomBar.setContent(
 				`${" ".repeat(2)}${messageCount}${" ".repeat(
-					3
-				)}${modeInfo}${" ".repeat(padding)}${modelInfo}${" ".repeat(2)}`
+					3,
+				)}${modeInfo}${" ".repeat(padding)}${modelInfo}${" ".repeat(2)}`,
 			);
 		}
 		screen.render();
@@ -204,18 +204,18 @@ export default function createChatInterface({
 
 			const providerColor = getProviderColor(provider);
 			const aiResponse = `${providerColor(
-				`[${provider}]`
+				`[${provider}]`,
 			)}: ${parsedResponse}`;
 
 			const separator = chalk.gray(
-				"─".repeat((screen.width as number) - 3)
+				"─".repeat((screen.width as number) - 3),
 			);
 
 			const textResonse = `[${provider}]: ${response}`;
 
 			messages.push(textResonse);
 			chatBox.setContent(
-				chatBox.getContent() + aiResponse + separator + "\n\n"
+				chatBox.getContent() + aiResponse + separator + "\n\n",
 			);
 
 			chatBox.scroll(chatBox.getScrollHeight());
@@ -307,7 +307,7 @@ export default function createChatInterface({
 						.replace(/[^a-zA-Z0-9]/g, "_");
 
 					const filename = `${firstQuery}_${formatFileDate(
-						new Date()
+						new Date(),
 					)}.txt`;
 					const filePath = path.join(CHATS_DIR, filename);
 
@@ -317,7 +317,7 @@ export default function createChatInterface({
 					fs.writeFileSync(filePath, formattedMessages);
 					cleanup();
 					console.log(
-						chalk.greenBright(`Chat saved at path ${filePath}`)
+						chalk.greenBright(`Chat saved at path ${filePath}`),
 					);
 					process.exit(0);
 				}

@@ -1,17 +1,17 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import { Config } from "@/utils/types.ts";
-import { showBanner } from "@/utils/ascii.ts";
-import { CONFIG_PATH, CHATS_DIR, pkg } from "@/utils/paths.ts";
+import { Config } from "@/utils/types";
+import { showBanner } from "@/utils/ascii";
+import { CONFIG_PATH, CHATS_DIR, pkg } from "@/utils/paths";
 
 export async function flash() {
 	try {
 		if (!fs.existsSync(CONFIG_PATH)) {
 			console.log(
 				chalk.yellow(
-					"\nNo configuration found. Please run 'voltx init' first.\n"
-				)
+					"\nNo configuration found. Please run 'voltx init' first.\n",
+				),
 			);
 			process.exit(1);
 		}
@@ -31,19 +31,19 @@ export async function flash() {
 
 		const stats = [
 			`${chalk.bold("User:")} ${chalk.cyan(
-				config.user.username || "N/A"
+				config.user.username || "N/A",
 			)}`,
 			`${chalk.bold("Installed on:")} ${chalk.magenta(
-				createdDate?.toDateString() || "N/A"
+				createdDate?.toDateString() || "N/A",
 			)}`,
 			`${chalk.bold("Providers configured:")} ${chalk.blue(
-				configuredProviders.length.toString()
+				configuredProviders.length.toString(),
 			)}`,
 			`${chalk.bold("Chats saved:")} ${chalk.red(
-				chatFiles.length.toString()
+				chatFiles.length.toString(),
 			)}`,
 			`${chalk.bold("CLI Version:")} ${chalk.cyan(
-				pkg.version
+				pkg.version,
 			)}${chalk.red(" (beta)")}`,
 		];
 
@@ -53,13 +53,13 @@ export async function flash() {
 				...configuredProviders.map(
 					(provider) =>
 						`  ${chalk.gray("•")} ${chalk.cyan(
-							provider
+							provider,
 						)} ${chalk.gray("→")} ${
 							config[provider]?.DEFAULT_MODEL
 								? chalk.yellow(config[provider].DEFAULT_MODEL)
 								: chalk.gray("(no defaults set)")
-						}`
-				)
+						}`,
+				),
 			);
 		}
 

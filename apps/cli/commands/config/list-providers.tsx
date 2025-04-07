@@ -1,6 +1,6 @@
 import chalk from "chalk";
-import { providers } from "@/utils/models.ts";
-import { getProviderColor } from "@/utils/colors.ts";
+import { providers } from "@/utils/models";
+import { getProviderColor } from "@/utils/colors";
 
 export default function listProviders() {
 	console.log(chalk.bold.underline("\nAvailable Providers:\n"));

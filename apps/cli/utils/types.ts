@@ -1,4 +1,4 @@
-import { ModelName, Provider } from "@/utils/models.ts";
+import { ModelName, Provider } from "@/utils/models";
 
 export interface Config {
 	user: {

@@ -2,12 +2,12 @@ import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
 import inquirer from "inquirer";
-import { Config } from "@/utils/types.ts";
-import { logEvent } from "@/utils/logger.ts";
-import { CONFIG_PATH } from "@/utils/paths.ts";
-import { getProviderColor, modelColor } from "@/utils/colors.ts";
-import { models, providers, Provider, ModelName } from "@/utils/models.ts";
-import createChatInterface from "@/interface/chat-window.tsx";
+import { Config } from "@/utils/types";
+import { logEvent } from "@/utils/logger";
+import { CONFIG_PATH } from "@/utils/paths";
+import { getProviderColor, modelColor } from "@/utils/colors";
+import { models, providers, Provider, ModelName } from "@/utils/models";
+import createChatInterface from "@/interface/chat-window";
 
 async function selectProvider(): Promise<Provider | null> {
 	const { provider } = await inquirer.prompt([
@@ -34,7 +34,7 @@ async function selectModel(provider: Provider): Promise<ModelName | null> {
 			type: "list",
 			name: "model",
 			message: `Select model from ${getProviderColor(provider)(
-				provider
+				provider,
 			)}:`,
 			choices: [
 				...models[provider].map((m) => ({
@@ -54,8 +54,8 @@ async function startChat() {
 		if (!fs.existsSync(CONFIG_PATH)) {
 			console.log(
 				chalk.yellow(
-					"\nNo configuration found. Please run 'voltx init' first.\n"
-				)
+					"\nNo configuration found. Please run 'voltx init' first.\n",
+				),
 			);
 			process.exit(1);
 		}
@@ -80,15 +80,15 @@ async function startChat() {
 
 				logEvent(
 					"info",
-					`Starting temporary chat session with ${selectedModel} from ${provider}`
+					`Starting temporary chat session with ${selectedModel} from ${provider}`,
 				);
 				console.log(
 					chalk.cyan(
 						`\nStarting chat session with ${modelColor(
-							selectedModel
+							selectedModel,
 						)} ` +
-							`from ${getProviderColor(provider)(provider)}...\n`
-					)
+							`from ${getProviderColor(provider)(provider)}...\n`,
+					),
 				);
 				createChatInterface({
 					model: selectedModel,
@@ -102,15 +102,15 @@ async function startChat() {
 			if (providerConfig?.DEFAULT_MODEL) {
 				logEvent(
 					"info",
-					`Starting chat session with ${providerConfig.DEFAULT_MODEL} from ${provider}`
+					`Starting chat session with ${providerConfig.DEFAULT_MODEL} from ${provider}`,
 				);
 				console.log(
 					chalk.cyan(
 						`\nStarting chat session with ${modelColor(
-							providerConfig.DEFAULT_MODEL
+							providerConfig.DEFAULT_MODEL,
 						)} ` +
-							`from ${getProviderColor(provider)(provider)}...\n`
-					)
+							`from ${getProviderColor(provider)(provider)}...\n`,
+					),
 				);
 				createChatInterface({
 					model: providerConfig.DEFAULT_MODEL,
@@ -129,17 +129,17 @@ async function startChat() {
 		) {
 			logEvent(
 				"info",
-				`Starting chat session with default model ${config.user.defaultModel} from ${config.user.defaultProvider}`
+				`Starting chat session with default model ${config.user.defaultModel} from ${config.user.defaultProvider}`,
 			);
 			console.log(
 				chalk.cyan(
 					`\nStarting chat session with ${modelColor(
-						config.user.defaultModel
+						config.user.defaultModel,
 					)} ` +
 						`from ${getProviderColor(config.user.defaultProvider)(
-							config.user.defaultProvider
-						)}...\n`
-				)
+							config.user.defaultProvider,
+						)}...\n`,
+				),
 			);
 			createChatInterface({
 				model: config.user.defaultModel,
@@ -191,24 +191,24 @@ async function startChat() {
 			fs.writeFileSync(CONFIG_PATH, TOML.stringify(config));
 			logEvent(
 				"info",
-				`User set default chat model to ${selectedModel} from provider ${selectedProvider}`
+				`User set default chat model to ${selectedModel} from provider ${selectedProvider}`,
 			);
 			console.log(
-				chalk.green("\nDefault model configured successfully!")
+				chalk.green("\nDefault model configured successfully!"),
 			);
 		}
 
 		logEvent(
 			"info",
-			`Starting chat session with ${selectedModel} from ${selectedProvider}`
+			`Starting chat session with ${selectedModel} from ${selectedProvider}`,
 		);
 		console.log(
 			chalk.cyan(
 				`\nStarting chat session with ${modelColor(selectedModel)} ` +
 					`from ${getProviderColor(selectedProvider)(
-						selectedProvider
-					)}...\n`
-			)
+						selectedProvider,
+					)}...\n`,
+			),
 		);
 
 		createChatInterface({
