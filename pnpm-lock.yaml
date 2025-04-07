@@ -100,7 +100,7 @@ importers:
         specifier: ^6.2.5
         version: 6.2.5(@types/node@22.13.14)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.3)(yaml@2.7.1)
 
-  apps/docs:
+  apps/web:
     dependencies:
       fumadocs-core:
         specifier: 15.2.4

@@ -10,13 +10,14 @@
 		"format": "prettier --write \"**/*.{ts,tsx,md}\""
 	},
 	"devDependencies": {
-		"turbo": "latest",
-		"prettier": "latest"
+		"prettier": "latest",
+		"turbo": "latest"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
 			"es5-ext",
-			"esbuild"
+			"esbuild",
+			"sharp"
 		]
 	}
 }
