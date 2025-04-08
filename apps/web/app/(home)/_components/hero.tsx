@@ -1,13 +1,27 @@
+"use client";
+
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Copy, Terminal } from "lucide-react";
+import { Copy, Terminal, Check } from "lucide-react";
 import { JSX } from "react";
 import heroPlaceholder from "@/assets/placeholder/placeholder_1920x1080.png";
 import Link from "next/link";
+import { useState } from "react";
 
 export const Hero = (): JSX.Element => {
+	const [hasCopied, setHasCopied] = useState(false);
+
+	const copyToClipboard = async (text: string) => {
+		try {
+			await navigator.clipboard.writeText(text);
+			return true;
+		} catch (err) {
+			return false;
+		}
+	};
+
 	return (
-		<section className="relative min-h-[calc(100vh-4rem)] w-full overflow-hidden">
+		<section className="relative min-h-[calc(100vh-8rem)] w-full overflow-hidden">
 			{/* Background Grid */}
 			<div className="absolute inset-0">
 				<div
@@ -18,30 +32,49 @@ export const Hero = (): JSX.Element => {
 				/>
 			</div>
 
-			{/* Main Content */}
 			<div className="container relative z-10">
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-12 md:py-20">
-					{/* Left Column - Content */}
 					<div className="flex flex-col justify-center space-y-8 text-center md:text-left">
-						{/* Hero Text */}
 						<div className="space-y-4">
-							<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-								Superpower your{" "}
-								<span className="text-primary">terminal</span>
+							<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[70px]">
+								Supercharge your{" "}
+								<span className="text-primary font-mono">
+									terminal
+								</span>
 							</h1>
 							<p className="text-lg text-muted-foreground">
-								Harness the power of AI directly in your
-								terminal. Write code, analyze data, and automate
-								tasks with natural language.
+								An AI-native terminal experience. Chat with SOTA
+								LLMs, write scripts, run shell commands, and
+								automate tasks — using natural language.
 							</p>
 						</div>
 
-						{/* CTA Section */}
 						<div className="flex flex-col space-y-6 ">
 							<div className="flex flex-col sm:flex-row justify-center md:justify-start gap-4">
-								<Button size="lg" className="group">
-									npm i voltx
-									<Copy className="w-4 h-4 ml-2 text-accent/70 group-hover:text-accent" />
+								<Button
+									size="lg"
+									className="group"
+									onClick={async () => {
+										const copied =
+											await copyToClipboard(
+												"npm i voltx",
+											);
+										if (copied) {
+											setHasCopied(true);
+											setTimeout(
+												() => setHasCopied(false),
+												2000,
+											);
+										}
+									}}
+								>
+									{" "}
+									$ npm i voltx
+									{hasCopied ? (
+										<Check className="w-4 h-4 ml-2 text-accent/80 " />
+									) : (
+										<Copy className="w-4 h-4 ml-2 text-accent/80 group-hover:text-accent" />
+									)}
 								</Button>
 								<Link href="/docs" className="sm:w-auto w-full">
 									<Button
@@ -54,25 +87,9 @@ export const Hero = (): JSX.Element => {
 									</Button>
 								</Link>
 							</div>
-
-							{/* Social Proof */}
-							<div className="flex flex-col sm:flex-row items-center gap-4 text-sm text-muted-foreground justify-center md:justify-start">
-								<div className="flex -space-x-2">
-									{[...Array(4)].map((_, i) => (
-										<div
-											key={i}
-											className="w-8 h-8 rounded-full border-2 border-background bg-muted"
-										/>
-									))}
-								</div>
-								<p className="font-medium">
-									Join 1000+ developers using volt<em>x</em>
-								</p>
-							</div>
 						</div>
 					</div>
 
-					{/* Right Column - Terminal Preview */}
 					<div className="relative aspect-video">
 						<div className="rounded-lg overflow-hidden border border-border bg-card shadow-2xl">
 							<div className="bg-muted p-2 flex items-center gap-2">
