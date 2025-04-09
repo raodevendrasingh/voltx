@@ -1,11 +1,11 @@
 {
 	"name": "voltx",
-	"version": "0.3.1",
+	"version": "0.3.3",
 	"description": "A CLI tool to converse with popular LLMs via terminal",
 	"main": "./bin/index.ts",
 	"type": "module",
 	"bin": {
-		"voltx": "bin/index.ts"
+		"voltx": "dist/index.js"
 	},
 	"scripts": {
 		"dev": "cross-env NODE_PATH=. ts --tsconfig tsconfig.paths.json bin/index.ts",
