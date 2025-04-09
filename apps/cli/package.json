@@ -1,21 +1,24 @@
 {
 	"name": "voltx",
-	"version": "0.3.0",
+	"version": "0.3.1",
 	"description": "A CLI tool to converse with popular LLMs via terminal",
-	"main": "index.tsx",
+	"main": "./bin/index.ts",
 	"type": "module",
 	"bin": {
-		"voltx": "./bin/index.tsx"
+		"voltx": "bin/index.ts"
 	},
 	"scripts": {
-		"dev": "cross-env NODE_PATH=. tsx --tsconfig tsconfig.paths.json bin/index.tsx",
-		"start": "NODE_PATH=. tsx --tsconfig tsconfig.paths.json",
-		"build": "vite build",
+		"dev": "cross-env NODE_PATH=. ts --tsconfig tsconfig.paths.json bin/index.ts",
+		"build": "tsup bin/index.ts --format esm --target node18 --outDir dist --clean",
 		"check-types": "tsc --noEmit",
-		"lint": "eslint . --ext .ts,.tsx",
+		"lint": "eslint . --ext .ts,.ts",
 		"clean": "rm -rf dist"
 	},
-	"keywords": [],
+	"keywords": [
+		"cli",
+		"terminal",
+		"tool"
+	],
 	"author": "tminusdev",
 	"license": "UNLICENSED",
 	"packageManager": "pnpm@10.7.1",
@@ -46,6 +49,7 @@
 		"@typescript-eslint/parser": "^8.29.0",
 		"@vitejs/plugin-react": "^4.3.4",
 		"eslint": "^9.24.0",
+		"tsup": "^8.4.0",
 		"tsx": "^4.19.3",
 		"typescript": "^5.8.3",
 		"vite": "^6.2.5"

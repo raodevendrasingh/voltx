@@ -2,14 +2,14 @@ import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
 import inquirer from "inquirer";
-import { Config } from "@/utils/types.ts";
-import { CONFIG_PATH } from "@/utils/paths.ts";
-import { models, providers, Provider } from "@/utils/models.ts";
-import { getProviderColor, modelColor } from "@/utils/colors.ts";
-import { logEvent } from "@/utils/logger.ts";
+import { Config } from "@/utils/types";
+import { CONFIG_PATH } from "@/utils/paths";
+import { models, providers, Provider } from "@/utils/models";
+import { getProviderColor, modelColor } from "@/utils/colors";
+import { logEvent } from "@/utils/logger";
 
 async function selectProvider(
-	unconfiguredProviders: Provider[]
+	unconfiguredProviders: Provider[],
 ): Promise<Provider | null> {
 	if (unconfiguredProviders.length === 0) {
 		console.log(chalk.yellow("\nAll providers have been configured."));
@@ -39,8 +39,8 @@ async function configureProvider() {
 		if (!fs.existsSync(CONFIG_PATH)) {
 			console.log(
 				chalk.yellow(
-					"\nNo configuration found. Please run 'voltx init' first.\n"
-				)
+					"\nNo configuration found. Please run 'voltx init' first.\n",
+				),
 			);
 			process.exit(1);
 		}
@@ -76,7 +76,7 @@ async function configureProvider() {
 						unconfiguredProviders
 							.map((p) => getProviderColor(p)(p))
 							.join(", ") +
-						"\n"
+						"\n",
 				);
 				process.exit(1);
 			}
@@ -93,13 +93,13 @@ async function configureProvider() {
 			if (isFullyConfigured) {
 				console.log(
 					chalk.yellow(
-						`\nProvider "${providerArg}" is already fully configured.`
+						`\nProvider "${providerArg}" is already fully configured.`,
 					) +
 						"\nAvailable unconfigured providers: " +
 						unconfiguredProviders
 							.map((p) => getProviderColor(p)(p))
 							.join(", ") +
-						"\n"
+						"\n",
 				);
 				process.exit(0);
 			}
@@ -125,7 +125,7 @@ async function configureProvider() {
 					type: "input",
 					name: "newApiKey",
 					message: `Enter API key for ${getProviderColor(
-						providerToConfig
+						providerToConfig,
 					)(providerToConfig)}:`,
 					validate: (input: string) =>
 						input.trim() !== "" || "API key is required",
@@ -142,7 +142,7 @@ async function configureProvider() {
 					type: "list",
 					name: "model",
 					message: `Select default model for ${getProviderColor(
-						providerToConfig
+						providerToConfig,
 					)(providerToConfig)}:`,
 					choices: models[providerToConfig].map((m) => ({
 						name: modelColor(m),
@@ -168,15 +168,15 @@ async function configureProvider() {
 
 		logEvent(
 			"info",
-			`User ${config.user.username} updated provider: ${providerToConfig}`
+			`User ${config.user.username} updated provider: ${providerToConfig}`,
 		);
 
 		console.log(
 			chalk.green(
 				`\nSuccess! Provider ${getProviderColor(providerToConfig)(
-					providerToConfig
-				)} configured with model ${modelColor(defaultModel)}\n`
-			)
+					providerToConfig,
+				)} configured with model ${modelColor(defaultModel)}\n`,
+			),
 		);
 	} catch (error) {
 		console.error(chalk.red("Error during provider configuration:"), error);
