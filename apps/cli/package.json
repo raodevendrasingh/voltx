@@ -8,7 +8,7 @@
 		"voltx": "dist/index.js"
 	},
 	"scripts": {
-		"prepublishOnly": "cp ../../README.md ./README.md && cp ../../LICENSE ./LICENSE && cp ../../CONTRIBUTING.md ./CONTRIBUTING.md",
+		"prepublishOnly": "cp ../../README.md ./README.md && cp ../../LICENSE ./LICENSE",
 		"dev": "cross-env NODE_PATH=. ts --tsconfig tsconfig.paths.json bin/index.ts",
 		"build": "tsup bin/index.ts --format esm --target node18 --outDir dist --clean",
 		"check-types": "tsc --noEmit",

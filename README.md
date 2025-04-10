@@ -8,8 +8,6 @@ No GUI. No fluff. Just volts.
 
 ![MIT License](https://img.shields.io/badge/License-MIT-green.svg)
 ![NPM Version](https://img.shields.io/npm/v/voltx)
-![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
-![NPM Downloads](https://img.shields.io/npm/dw/voltx)
 
 ## Installation
 
@@ -21,17 +19,21 @@ npm install -g voltx
 
 ## Usage
 
-Once installed, you can run Voltx commands like so:
+Once installed, you can run Voltx commands like:
 
 ```bash
 voltx [command] [options]
 ```
 
-To initialise the script, you must have an API_KEY of any of your favourite llm providers.
+## Documentation
+
+To initialize the script run the following command:
 
 ```bash
 voltx init
 ```
+
+You must have an API_KEY of any of your favourite LLM providers.
 
 ### Supported Providers
 
@@ -41,11 +43,7 @@ voltx init
 - OpenAI
 - Perplexity
 
-#### For detailed usage of each command, check out the full documentation below
-
-## Documentation
-
-For complete documentation, visit: [Voltx Docs](https://voltx.vercel.app)
+For detailed usage of each command, visit: [Voltx Docs](https://voltx.vercel.app)
 
 ## Contributing
 
@@ -56,3 +54,9 @@ Please ensure you adhere to the project's [code of conduct](CODE_OF_CONDUCT.md).
 ## License
 
 This project is completely free and licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+While attribution is not required under the MIT license, it’s always appreciated if you credit the original developer.
+
+## Support
+
+If you like this project, consider starring the repo to show your support. It helps more than you think!
