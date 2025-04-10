@@ -1,0 +1,13 @@
+*.env*
+*.ts
+*.tsx
+.vscode
+node_modules
+turbo.json
+tsconfig*
+tests/
+test/
+__tests__/
+scripts/
+apps/
+packages/

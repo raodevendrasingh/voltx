@@ -1,6 +1,6 @@
 {
 	"name": "voltx",
-	"version": "0.3.3",
+	"version": "0.3.4",
 	"description": "A CLI tool to converse with popular LLMs via terminal",
 	"main": "./bin/index.ts",
 	"type": "module",
@@ -8,6 +8,7 @@
 		"voltx": "dist/index.js"
 	},
 	"scripts": {
+		"prepublishOnly": "cp ../../README.md ./README.md && cp ../../LICENSE ./LICENSE && cp ../../CONTRIBUTING.md ./CONTRIBUTING.md",
 		"dev": "cross-env NODE_PATH=. ts --tsconfig tsconfig.paths.json bin/index.ts",
 		"build": "tsup bin/index.ts --format esm --target node18 --outDir dist --clean",
 		"check-types": "tsc --noEmit",
@@ -18,6 +19,12 @@
 		"cli",
 		"terminal",
 		"tool"
+	],
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE",
+		"CONTRIBUTING.md"
 	],
 	"author": "tminusdev",
 	"license": "UNLICENSED",
