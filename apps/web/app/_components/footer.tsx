@@ -14,7 +14,7 @@ export const Footer = (): JSX.Element => {
 
 					<div className="flex items-center justify-center gap-1.5 text-muted-foreground order-3 md:order-2">
 						<Copyright size={14} className="shrink-0" />
-						<span className="text-sm font-medium">
+						<span className="text-sm">
 							{new Date().getFullYear()} All rights reserved
 						</span>
 					</div>

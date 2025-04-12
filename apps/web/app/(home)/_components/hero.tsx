@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Copy, Terminal, Check } from "lucide-react";
+import { Copy, Terminal, Check, BookOpen } from "lucide-react";
 import { JSX } from "react";
 import heroPlaceholder from "@/assets/placeholder/placeholder_1920x1080.png";
 import Link from "next/link";
@@ -26,9 +26,9 @@ export const Hero = (): JSX.Element => {
 			<div className="absolute inset-0">
 				<div
 					className="h-full w-full 
-          bg-[linear-gradient(to_right,#4f4f4f2b_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2b_1px,transparent_1px)] 
-          bg-[size:64px_64px] 
-          [mask-image:radial-gradient(ellipse_80%_50%_at_50%_-20%,#000_70%,transparent_110%)]"
+					bg-[linear-gradient(to_right,#4f4f4f2b_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2b_1px,transparent_1px)] 
+					bg-[size:64px_64px] 
+					[mask-image:radial-gradient(ellipse_80%_50%_at_50%_-20%,#000_70%,transparent_110%)]"
 				/>
 			</div>
 
@@ -36,16 +36,17 @@ export const Hero = (): JSX.Element => {
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-12 md:py-20">
 					<div className="flex flex-col justify-center space-y-8 text-center md:text-left">
 						<div className="space-y-4">
-							<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[70px]">
+							<h1 className="text-5xl lg:text-6xl font-bold tracking-tight leading-16">
 								Supercharge your{" "}
 								<span className="text-primary font-mono">
 									terminal
 								</span>
 							</h1>
-							<p className="text-lg text-muted-foreground">
-								An AI-native terminal experience. Chat with SOTA
-								LLMs, write scripts, run shell commands, and
-								automate tasks — using natural language.
+							<p className="text-lg text-muted-foreground text-pretty">
+								An AI-native terminal experience. Chat with
+								State-of-the-art LLMs, write scripts, run shell
+								commands, and automate tasks — using natural
+								language.
 							</p>
 						</div>
 
@@ -68,8 +69,8 @@ export const Hero = (): JSX.Element => {
 										}
 									}}
 								>
-									{" "}
-									$ npm i voltx
+									<Terminal className="w-4 h-4 mr-2" />
+									npm i voltx
 									{hasCopied ? (
 										<Check className="w-4 h-4 ml-2 text-accent/80 " />
 									) : (
@@ -82,7 +83,7 @@ export const Hero = (): JSX.Element => {
 										variant="outline"
 										className="w-full sm:w-auto"
 									>
-										<Terminal className="w-4 h-4 mr-2" />
+										<BookOpen className="w-4 h-4 mr-2" />
 										View Documentation
 									</Button>
 								</Link>

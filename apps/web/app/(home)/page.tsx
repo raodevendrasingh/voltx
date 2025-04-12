@@ -1,11 +1,9 @@
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "../_components/footer";
-import { Hero } from "./_components/hero";
+import { Footer } from "@/app/_components/footer";
+import { Hero } from "@/app/(home)/_components/hero";
 
 export default function HomePage() {
 	return (
-		<main className="flex flex-1 flex-col justify-center text-center -pt-14">
-			<Navbar />
+		<main className="flex flex-1 flex-col justify-center text-center">
 			<Hero />
 			<Footer />
 		</main>

@@ -216,10 +216,11 @@
 	body {
 		@apply bg-background text-foreground;
 	}
-	/* #nd-nav {
-		display: none !important;
+	#nd-nav {
+		border: 1px !important;
+		box-shadow: none !important;
+		backdrop-filter: blur !important;
+		border-radius: 0 !important;
+		background: transparent !important;
 	}
-	#nd-home-layout {
-		padding-top: -14px;
-	} */
 }
