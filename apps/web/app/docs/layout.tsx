@@ -5,7 +5,12 @@ import { source } from "@/lib/source";
 
 export default function Layout({ children }: { children: ReactNode }) {
 	return (
-		<DocsLayout tree={source.pageTree} {...baseOptions}>
+		<DocsLayout
+			githubUrl={"https://github.com/raodevendrasingh/voltx"}
+			sidebar={{ defaultOpenLevel: 0 }}
+			tree={source.pageTree}
+			{...baseOptions}
+		>
 			{children}
 		</DocsLayout>
 	);

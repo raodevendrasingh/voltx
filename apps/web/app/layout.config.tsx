@@ -1,5 +1,6 @@
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 import { BrandLogoWordmark } from "@/components/BrandLogo";
+import { BookOpen } from "lucide-react";
 
 /**
  * Shared layout configurations
@@ -10,15 +11,12 @@ import { BrandLogoWordmark } from "@/components/BrandLogo";
  */
 export const baseOptions: BaseLayoutProps = {
 	nav: {
-		title: (
-			<>
-				<BrandLogoWordmark />
-			</>
-		),
+		title: <BrandLogoWordmark />,
 	},
 	links: [
 		{
 			text: "Docs",
+			icon: <BookOpen />,
 			url: "/docs",
 			active: "nested-url",
 		},

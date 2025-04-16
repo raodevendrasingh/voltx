@@ -1,0 +1,11 @@
+{
+	"root": true,
+	"pages": [
+		"---Setup---",
+		"...setup",
+		"---Usage---",
+		"...usage",
+		"---Community---",
+		"...community"
+	]
+}
