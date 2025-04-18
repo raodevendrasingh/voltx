@@ -4,8 +4,8 @@ export interface Config {
 	user: {
 		username: string;
 		createdAt: string;
-		defaultModel: ModelName;
-		defaultProvider: Provider;
+		defaultModel: ModelName | null;
+		defaultProvider: Provider | null;
 		providers: Provider[];
 	};
 	[key: string]: any;

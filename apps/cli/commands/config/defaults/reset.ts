@@ -39,8 +39,8 @@ async function resetDefaults() {
 		const config = TOML.parse(configContent) as Config;
 
 		// Reset global defaults
-		config.user.defaultModel = "";
-		config.user.defaultProvider = "";
+		config.user.defaultModel = null;
+		config.user.defaultProvider = null;
 
 		// Reset provider-specific defaults
 		config.user.providers.forEach((provider: Provider) => {

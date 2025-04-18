@@ -148,8 +148,8 @@ const run = async () => {
 			username,
 			createdAt: timestamp,
 			providers: [],
-			defaultModel: "",
-			defaultProvider: "",
+			defaultModel: null,
+			defaultProvider: null,
 		},
 	};
 
