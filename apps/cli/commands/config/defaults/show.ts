@@ -6,7 +6,7 @@ import { CONFIG_PATH } from "@/utils/paths";
 import { Provider, providers } from "@/utils/models";
 import { getProviderColor, modelColor } from "@/utils/colors";
 
-async function showDefaults() {
+export default async function showDefaults() {
 	try {
 		if (!fs.existsSync(CONFIG_PATH)) {
 			console.log(
@@ -60,8 +60,3 @@ async function showDefaults() {
 		process.exit(1);
 	}
 }
-
-showDefaults().catch((error) => {
-	console.error(chalk.red("Error:"), error);
-	process.exit(1);
-});

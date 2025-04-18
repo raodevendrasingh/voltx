@@ -6,6 +6,8 @@ import { providers } from "@/utils/models";
 import { flash } from "@/commands/flash";
 import { init } from "@/bin/init";
 import listProviders from "@/commands/config/list-providers";
+import listModels from "@/commands/config/list-models";
+import showDefaults from "@/commands/config/defaults/show";
 
 program.version(pkg.version, "-v, --version", "Display CLI version");
 
@@ -26,15 +28,11 @@ program
 		new Command("list-models")
 			.description("List all supported models by provider")
 			.option(
-				"--provider <provider>",
+				"--provider <provider-name>",
 				"Specify a provider to list models for",
 			)
 			.action((options) => {
-				const args = ["tsx", "commands/config/list-models.ts"];
-				if (options.provider) {
-					args.push(`--provider=${options.provider}`);
-				}
-				spawn("npx", args, { stdio: "inherit" });
+				listModels(options.provider);
 			}),
 	)
 	.addCommand(
@@ -77,11 +75,7 @@ program
 	.addCommand(
 		new Command("show-defaults")
 			.description("Show all configured default models")
-			.action(() => {
-				spawn("npx", ["tsx", "commands/config/defaults/show.ts"], {
-					stdio: "inherit",
-				});
-			}),
+			.action(showDefaults),
 	)
 	.addCommand(
 		new Command("reset-defaults")
