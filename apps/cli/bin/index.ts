@@ -10,14 +10,14 @@ program
 	.command("init")
 	.description("Initialize configuration")
 	.action(() => {
-		spawn("npx", ["tsx", "bin/init.tsx"], { stdio: "inherit" });
+		spawn("npx", ["tsx", "bin/init.ts"], { stdio: "inherit" });
 	});
 
 program
 	.command("flash")
 	.description("Show user info and stats")
 	.action(() => {
-		spawn("npx", ["tsx", "commands/flash.tsx"], { stdio: "inherit" });
+		spawn("npx", ["tsx", "commands/flash.ts"], { stdio: "inherit" });
 	});
 
 program
@@ -27,7 +27,7 @@ program
 		new Command("list-providers")
 			.description("List all supported model providers")
 			.action(() => {
-				spawn("npx", ["tsx", "commands/config/list-providers.tsx"], {
+				spawn("npx", ["tsx", "commands/config/list-providers.ts"], {
 					stdio: "inherit",
 				});
 			}),
@@ -40,7 +40,7 @@ program
 				"Specify a provider to list models for",
 			)
 			.action((options) => {
-				const args = ["tsx", "commands/config/list-models.tsx"];
+				const args = ["tsx", "commands/config/list-models.ts"];
 				if (options.provider) {
 					args.push(`--provider=${options.provider}`);
 				}
@@ -73,7 +73,7 @@ program
 								"npx",
 								[
 									"tsx",
-									"commands/config/defaults/chat-model.tsx",
+									"commands/config/defaults/chat-model.ts",
 									options.provider,
 								],
 								{
@@ -88,7 +88,7 @@ program
 		new Command("show-defaults")
 			.description("Show all configured default models")
 			.action(() => {
-				spawn("npx", ["tsx", "commands/config/defaults/show.tsx"], {
+				spawn("npx", ["tsx", "commands/config/defaults/show.ts"], {
 					stdio: "inherit",
 				});
 			}),
@@ -102,7 +102,7 @@ program
 					"npx",
 					[
 						"tsx",
-						"commands/config/defaults/reset.tsx",
+						"commands/config/defaults/reset.ts",
 						...(options.hard ? ["--hard"] : []),
 					],
 					{
@@ -121,7 +121,7 @@ program
 						"npx",
 						[
 							"tsx",
-							"commands/config/setup/provider.tsx",
+							"commands/config/setup/provider.ts",
 							...process.argv.slice(4),
 						],
 						{
@@ -142,7 +142,7 @@ program
 			"npx",
 			[
 				"tsx",
-				"commands/config/show.tsx",
+				"commands/config/show.ts",
 				...(options.unmasked ? ["--unmasked"] : []),
 			],
 			{
@@ -164,7 +164,7 @@ program
 			);
 			process.exit(1);
 		}
-		const args = ["tsx", "commands/chat/start.tsx"];
+		const args = ["tsx", "commands/chat/start.ts"];
 		if (provider) args.push(provider);
 		if (options.temp) args.push("--temp");
 		spawn("npx", args, { stdio: "inherit" });
@@ -175,7 +175,7 @@ program
 	.description("Reset voltx configurations and remove all chats")
 	.option("--danger", "Dangerous irreversible action")
 	.action(() => {
-		spawn("npx", ["tsx", "commands/reset.tsx", ...process.argv.slice(3)], {
+		spawn("npx", ["tsx", "commands/reset.ts", ...process.argv.slice(3)], {
 			stdio: "inherit",
 		});
 	});
