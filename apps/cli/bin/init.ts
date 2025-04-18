@@ -126,7 +126,7 @@ const askToContinue = async (): Promise<boolean> => {
 	return shouldContinue;
 };
 
-const run = async () => {
+export async function init() {
 	createDirectories();
 	showBanner();
 
@@ -174,9 +174,4 @@ const run = async () => {
 
 	fs.writeFileSync(CONFIG_PATH, TOML.stringify(config));
 	console.log(chalk.green("\nConfiguration completed successfully! 🎉\n"));
-};
-
-run().catch((error) => {
-	console.error(chalk.red("Error during initialization:"), error);
-	process.exit(1);
-});
+}

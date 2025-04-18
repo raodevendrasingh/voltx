@@ -71,5 +71,3 @@ export async function flash() {
 		process.exit(1);
 	}
 }
-
-flash();

@@ -3,34 +3,24 @@ import { spawn } from "child_process";
 import chalk from "chalk";
 import { pkg } from "@/utils/paths";
 import { providers } from "@/utils/models";
+import { flash } from "@/commands/flash";
+import { init } from "@/bin/init";
+import listProviders from "@/commands/config/list-providers";
 
 program.version(pkg.version, "-v, --version", "Display CLI version");
 
-program
-	.command("init")
-	.description("Initialize configuration")
-	.action(() => {
-		spawn("npx", ["tsx", "bin/init.ts"], { stdio: "inherit" });
-	});
+program.command("init").description("Initialize configuration").action(init);
 
-program
-	.command("flash")
-	.description("Show user info and stats")
-	.action(() => {
-		spawn("npx", ["tsx", "commands/flash.ts"], { stdio: "inherit" });
-	});
+program.command("flash").description("Show user info and stats").action(flash);
 
 program
 	.command("config")
 	.description("Manage configuration settings")
+	// commands start from here
 	.addCommand(
 		new Command("list-providers")
 			.description("List all supported model providers")
-			.action(() => {
-				spawn("npx", ["tsx", "commands/config/list-providers.ts"], {
-					stdio: "inherit",
-				});
-			}),
+			.action(listProviders),
 	)
 	.addCommand(
 		new Command("list-models")

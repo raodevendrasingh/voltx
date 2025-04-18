@@ -12,5 +12,3 @@ export default function listProviders() {
 
 	console.log("");
 }
-
-listProviders();
