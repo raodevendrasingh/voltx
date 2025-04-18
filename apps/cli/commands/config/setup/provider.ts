@@ -1,12 +1,19 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import inquirer from "inquirer";
+import { select, text, isCancel, cancel } from "@clack/prompts";
 import { Config } from "@/utils/types";
 import { CONFIG_PATH } from "@/utils/paths";
-import { models, providers, Provider } from "@/utils/models";
+import { models, providers, Provider, ModelName } from "@/utils/models";
 import { getProviderColor, modelColor } from "@/utils/colors";
 import { logEvent } from "@/utils/logger";
+
+const handleCancel = (value: unknown) => {
+	if (isCancel(value)) {
+		cancel("Operation cancelled.");
+		process.exit(0);
+	}
+};
 
 async function selectProvider(
 	unconfiguredProviders: Provider[],
@@ -16,22 +23,19 @@ async function selectProvider(
 		return null;
 	}
 
-	const { provider } = await inquirer.prompt([
-		{
-			type: "list",
-			name: "provider",
-			message: "Select a provider to configure:",
-			choices: [
-				...unconfiguredProviders.map((p) => ({
-					name: getProviderColor(p)(p),
-					value: p,
-				})),
-				new inquirer.Separator(),
-				{ name: "Exit", value: null },
-			],
-		},
-	]);
-	return provider;
+	const provider = await select<Provider | null>({
+		message: "Select a provider to configure:",
+		options: [
+			...unconfiguredProviders.map((p) => ({
+				label: getProviderColor(p)(p),
+				value: p,
+			})),
+			{ label: "Exit", value: null },
+		],
+	});
+
+	handleCancel(provider);
+	return provider as Provider;
 }
 
 async function configureProvider() {
@@ -109,7 +113,7 @@ async function configureProvider() {
 			// Interactive provider selection
 			providerToConfig = await selectProvider(unconfiguredProviders);
 			if (!providerToConfig) {
-				console.log(chalk.yellow("\nConfiguration cancelled."));
+				// Exit handled by selectProvider if null is chosen
 				process.exit(0);
 			}
 		}
@@ -120,36 +124,34 @@ async function configureProvider() {
 		// Only ask for API key if it's missing
 		let apiKey = currentConfig.API_KEY;
 		if (!apiKey || apiKey.trim() === "") {
-			const { newApiKey } = await inquirer.prompt([
-				{
-					type: "input",
-					name: "newApiKey",
-					message: `Enter API key for ${getProviderColor(
-						providerToConfig,
-					)(providerToConfig)}:`,
-					validate: (input: string) =>
-						input.trim() !== "" || "API key is required",
+			const newApiKey = await text({
+				message: `Enter API key for ${getProviderColor(
+					providerToConfig,
+				)(providerToConfig)}:`,
+				validate: (input: string) => {
+					if (input.trim() === "") {
+						return "API key is required";
+					}
 				},
-			]);
-			apiKey = newApiKey;
+			});
+			handleCancel(newApiKey);
+			apiKey = newApiKey as string;
 		}
 
 		// Only ask for model if it's missing
 		let defaultModel = currentConfig.DEFAULT_MODEL;
 		if (!defaultModel || defaultModel.trim() === "") {
-			const { model } = await inquirer.prompt([
-				{
-					type: "list",
-					name: "model",
-					message: `Select default model for ${getProviderColor(
-						providerToConfig,
-					)(providerToConfig)}:`,
-					choices: models[providerToConfig].map((m) => ({
-						name: modelColor(m),
-						value: m,
-					})),
-				},
-			]);
+			const model = await select<ModelName>({
+				message: `Select default model for ${getProviderColor(
+					providerToConfig,
+				)(providerToConfig)}:`,
+				// @ts-ignore
+				options: models[providerToConfig].map((m) => ({
+					value: m,
+					label: modelColor(m),
+				})),
+			});
+			handleCancel(model);
 			defaultModel = model;
 		}
 

@@ -1,9 +1,16 @@
 import fs from "fs";
 import chalk from "chalk";
-import inquirer from "inquirer";
+import { confirm, isCancel, cancel } from "@clack/prompts";
 import { BASE_DIR, CONFIG_PATH } from "@/utils/paths";
 
-async function resetVoltx() {
+const handleCancel = (value: unknown) => {
+	if (isCancel(value)) {
+		cancel("Operation cancelled.");
+		process.exit(0);
+	}
+};
+
+export default async function resetVoltx() {
 	const args = process.argv.slice(2);
 	const dangerFlag = args.includes("--danger");
 
@@ -32,16 +39,14 @@ async function resetVoltx() {
 			`- configs\n- chats\n- logs\n- temp files\n- cache\n`,
 	);
 
-	const { confirm } = await inquirer.prompt([
-		{
-			type: "confirm",
-			name: "confirm",
-			message: "Continue to deletion?",
-			default: false,
-		},
-	]);
+	const shouldDelete = await confirm({
+		message: "Continue to deletion?",
+		initialValue: false,
+	});
 
-	if (!confirm) {
+	handleCancel(shouldDelete);
+
+	if (!shouldDelete) {
 		console.log(chalk.yellow("Aborted! No changes made."));
 		process.exit(0);
 	}

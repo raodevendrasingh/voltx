@@ -1,65 +1,72 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import inquirer from "inquirer";
+import { select, confirm, text, isCancel, cancel } from "@clack/prompts";
 import { Config } from "@/utils/types";
 import { CONFIG_PATH } from "@/utils/paths";
 import { models, providers, Provider, ModelName } from "@/utils/models";
 import { getProviderColor, modelColor } from "@/utils/colors";
 import { logEvent } from "@/utils/logger";
 
+const handleCancel = (value: unknown) => {
+	if (isCancel(value)) {
+		cancel("Operation cancelled.");
+		process.exit(0);
+	}
+};
+
 async function selectModel(provider: Provider): Promise<ModelName | null> {
-	const { model } = await inquirer.prompt([
-		{
-			type: "list",
-			name: "model",
-			message: `Select default model from ${getProviderColor(provider)(
-				provider,
-			)}:`,
-			choices: [
-				...models[provider].map((m) => ({
-					name: modelColor(m),
-					value: m,
-				})),
-				new inquirer.Separator(),
-				{ name: "Exit", value: null },
-			],
-		},
-	]);
-	return model;
+	type ModelSelectOption =
+		| { value: ModelName; label: string }
+		| { value: null; label: string };
+
+	const options: ModelSelectOption[] = [
+		...models[provider].map((m) => ({
+			label: modelColor(m),
+			value: m,
+		})),
+		{ label: "Exit", value: null },
+	];
+
+	const model = await select<ModelName | null>({
+		message: `Select default model from ${getProviderColor(provider)(
+			provider,
+		)}:`,
+		// @ts-ignore
+		options: options,
+	});
+	handleCancel(model);
+	return model as ModelName;
 }
 
 async function configureProvider(provider: Provider): Promise<{
 	API_KEY: string;
 	DEFAULT_MODEL: ModelName;
 } | null> {
-	const { configure } = await inquirer.prompt([
-		{
-			type: "confirm",
-			name: "configure",
-			message: `Would you like to configure ${getProviderColor(provider)(
-				provider,
-			)}?`,
-			default: false,
-		},
-	]);
+	const shouldConfigure = await confirm({
+		message: `Would you like to configure ${getProviderColor(provider)(
+			provider,
+		)}?`,
+		initialValue: false,
+	});
 
-	if (!configure) {
+	handleCancel(shouldConfigure);
+
+	if (!shouldConfigure) {
 		console.log(chalk.yellow("\nSkipping default model configuration."));
 		return null;
 	}
 
-	const { apiKey } = await inquirer.prompt([
-		{
-			type: "input",
-			name: "apiKey",
-			message: `Enter API key for ${getProviderColor(provider)(
-				provider,
-			)}:`,
-			validate: (input: string) =>
-				input.trim() !== "" || "API key is required",
+	const apiKey = await text({
+		message: `Enter API key for ${getProviderColor(provider)(provider)}:`,
+		validate: (input: string) => {
+			if (input.trim() === "") {
+				return "API key is required";
+			}
 		},
-	]);
+	});
+
+	handleCancel(apiKey);
 
 	const model = await selectModel(provider);
 	if (!model) {
@@ -68,7 +75,7 @@ async function configureProvider(provider: Provider): Promise<{
 	}
 
 	return {
-		API_KEY: apiKey,
+		API_KEY: apiKey as string,
 		DEFAULT_MODEL: model,
 	};
 }

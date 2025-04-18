@@ -25,7 +25,6 @@ export default defineConfig({
 				"dotenv",
 				"figlet",
 				"ink",
-				"inquirer",
 				"openai",
 			],
 		},

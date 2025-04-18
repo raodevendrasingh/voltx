@@ -1,7 +1,6 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import inquirer from "inquirer";
 import {
 	BASE_DIR,
 	CONFIG_PATH,
@@ -15,6 +14,22 @@ import { getProviderColor, modelColor } from "@/utils/colors";
 import { logEvent } from "@/utils/logger";
 import { Config } from "@/utils/types";
 import { showBanner } from "@/utils/ascii";
+import {
+	intro,
+	outro,
+	select,
+	text,
+	confirm,
+	isCancel,
+	cancel,
+} from "@clack/prompts";
+
+const handleCancel = (value: unknown) => {
+	if (isCancel(value)) {
+		cancel("Operation cancelled.");
+		process.exit(0);
+	}
+};
 
 const createDirectories = () => {
 	[BASE_DIR, LOGS_DIR, CHATS_DIR, TEMP_DIR, CACHE_DIR].forEach((dir) => {
@@ -24,23 +39,18 @@ const createDirectories = () => {
 	});
 };
 
-const validateUsername = (input: string): boolean | string => {
-	if (!input) return "Username is required";
-	if (!/^[a-z0-9]+$/.test(input))
-		return "Username must contain only lowercase letters and numbers";
-	return true;
-};
-
 const askUsername = async (): Promise<string> => {
-	const { username } = await inquirer.prompt([
-		{
-			type: "input",
-			name: "username",
-			message: "What should we call you?",
-			validate: validateUsername,
+	const username = await text({
+		message: "What should we call you?",
+		placeholder: "Enter your alias",
+		validate(value) {
+			if (!value) return "Username is required";
+			if (!/^[a-z0-9]+$/.test(value))
+				return "Username must contain only lowercase letters and numbers";
 		},
-	]);
-	return username;
+	});
+	handleCancel(username);
+	return username as string;
 };
 
 const selectProvider = async (
@@ -55,37 +65,35 @@ const selectProvider = async (
 		return null;
 	}
 
-	console.log(chalk.bold("\nAvailable Providers:"));
-	const { provider } = await inquirer.prompt([
-		{
-			type: "list",
-			name: "provider",
-			message: "Select a provider to configure:",
-			choices: availableProviders.map((p) => ({
-				name: getProviderColor(p)(p),
-				value: p,
-			})),
-		},
-	]);
+	const provider = await select({
+		message: "Select a provider to configure:",
+		options: availableProviders.map((p) => ({
+			value: p,
+			label: getProviderColor(p)(p),
+		})),
+	});
+
+	handleCancel(provider);
 	return provider as Provider;
 };
 
 const selectModel = async (provider: Provider): Promise<ModelName> => {
 	const providerModels = models[provider];
-	const { model } = await inquirer.prompt([
-		{
-			type: "list",
-			name: "model",
-			message: `Select default model for ${getProviderColor(provider)(
-				provider,
-			)}:`,
-			choices: providerModels.map((m) => ({
-				name: modelColor(m),
-				value: m,
-			})),
-		},
-	]);
-	return model;
+
+	const model = await select<ModelName>({
+		message: `Select default model for ${getProviderColor(provider)(
+			provider,
+		)}:`,
+		// @ts-ignore
+		options: providerModels.map((m) => ({
+			value: m,
+			label: modelColor(m),
+		})),
+	});
+
+	handleCancel(model);
+
+	return model as ModelName;
 };
 
 const configureProvider = async (
@@ -94,36 +102,33 @@ const configureProvider = async (
 	API_KEY: string;
 	DEFAULT_MODEL: ModelName;
 }> => {
-	const { apiKey } = await inquirer.prompt([
-		{
-			type: "input",
-			name: "apiKey",
-			message: `Enter API key for ${getProviderColor(provider)(
-				provider,
-			)}:`,
-			validate: (input: string) =>
-				input.trim() !== "" || "API key is required",
+	const apiKey = await text({
+		message: `Enter API key for ${getProviderColor(provider)(provider)}:`,
+		validate: (input: string) => {
+			if (input.trim() === "") {
+				return "API key is required";
+			}
 		},
-	]);
+	});
+
+	handleCancel(apiKey);
 
 	const defaultModel = await selectModel(provider);
 
 	return {
-		API_KEY: apiKey,
+		API_KEY: apiKey as string,
 		DEFAULT_MODEL: defaultModel,
 	};
 };
 
 const askToContinue = async (): Promise<boolean> => {
-	const { continue: shouldContinue } = await inquirer.prompt([
-		{
-			type: "confirm",
-			name: "continue",
-			message: "Would you like to configure another provider?",
-			default: false,
-		},
-	]);
-	return shouldContinue;
+	const shouldContinue = await confirm({
+		message: "Would you like to configure another provider?",
+		initialValue: false,
+	});
+
+	handleCancel(shouldContinue);
+	return shouldContinue as boolean;
 };
 
 export async function init() {
@@ -140,6 +145,8 @@ export async function init() {
 		process.exit(0);
 	}
 
+	intro(`Welcome to Voltx! Let's get you set up.`);
+
 	const username = await askUsername();
 	const timestamp = new Date().toISOString();
 
@@ -153,7 +160,7 @@ export async function init() {
 		},
 	};
 
-	logEvent("info", `User initialized voltx with username: ${username}`);
+	logEvent("info", `User initialized voltx with alias: ${username}`);
 
 	let shouldContinue = true;
 	while (shouldContinue) {
@@ -164,6 +171,11 @@ export async function init() {
 		config[provider] = providerConfig;
 		config.user.providers.push(provider);
 
+		if (config.user.providers.length === 1) {
+			config.user.defaultProvider = provider;
+			config.user.defaultModel = providerConfig.DEFAULT_MODEL;
+		}
+
 		logEvent(
 			"info",
 			`User ${username} configured provider: ${provider} with model: ${providerConfig.DEFAULT_MODEL}`,
@@ -173,5 +185,5 @@ export async function init() {
 	}
 
 	fs.writeFileSync(CONFIG_PATH, TOML.stringify(config));
-	console.log(chalk.green("\nConfiguration completed successfully! 🎉\n"));
+	outro(chalk.green("Configuration completed successfully! 🎉"));
 }

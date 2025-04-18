@@ -1,7 +1,7 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import inquirer from "inquirer";
+import { select, isCancel, cancel } from "@clack/prompts";
 import { Config } from "@/utils/types";
 import { logEvent } from "@/utils/logger";
 import { CONFIG_PATH } from "@/utils/paths";
@@ -9,44 +9,36 @@ import { getProviderColor, modelColor } from "@/utils/colors";
 import { models, providers, Provider, ModelName } from "@/utils/models";
 import createChatInterface from "@/interface/chat-window";
 
-async function selectProvider(): Promise<Provider | null> {
-	const { provider } = await inquirer.prompt([
-		{
-			type: "list",
-			name: "provider",
-			message: "Select a provider:",
-			choices: [
-				...providers.map((p) => ({
-					name: getProviderColor(p)(p),
-					value: p,
-				})),
-				new inquirer.Separator(),
-				{ name: "Exit", value: null },
-			],
-		},
-	]);
-	return provider;
+const handleCancel = (value: unknown) => {
+	if (isCancel(value)) {
+		cancel("Operation cancelled.");
+		process.exit(0);
+	}
+};
+
+async function selectProvider(): Promise<Provider> {
+	const provider = await select<Provider>({
+		message: "Select a provider:",
+		options: providers.map((p) => ({
+			value: p,
+			label: getProviderColor(p)(p),
+		})),
+	});
+	handleCancel(provider);
+	return provider as Provider;
 }
 
-async function selectModel(provider: Provider): Promise<ModelName | null> {
-	const { model } = await inquirer.prompt([
-		{
-			type: "list",
-			name: "model",
-			message: `Select model from ${getProviderColor(provider)(
-				provider,
-			)}:`,
-			choices: [
-				...models[provider].map((m) => ({
-					name: modelColor(m),
-					value: m,
-				})),
-				new inquirer.Separator(),
-				{ name: "Exit", value: null },
-			],
-		},
-	]);
-	return model;
+async function selectModel(provider: Provider): Promise<ModelName> {
+	const model = await select<ModelName>({
+		message: `Select model from ${getProviderColor(provider)(provider)}:`,
+		// @ts-ignore
+		options: models[provider].map((m) => ({
+			value: m,
+			label: modelColor(m),
+		})),
+	});
+	handleCancel(model);
+	return model as ModelName;
 }
 
 async function startChat() {
@@ -151,38 +143,30 @@ async function startChat() {
 		// If no defaults or using temp mode, prompt for selection
 		console.log(chalk.yellow("\nNo default model configured."));
 
-		const { option } = await inquirer.prompt([
-			{
-				type: "list",
-				name: "option",
-				message: "How would you like to proceed?",
-				choices: [
-					{
-						name: "Set default model for future sessions",
-						value: "default",
-					},
-					{
-						name: "Use temporary model for this session",
-						value: "temporary",
-					},
-				],
-			},
-		]);
+		const option = await select<"default" | "temporary">({
+			message: "How would you like to proceed?",
+			options: [
+				{
+					label: "Set default model for future sessions",
+					value: "default",
+				},
+				{
+					label: "Use temporary model for this session",
+					value: "temporary",
+				},
+			],
+		});
+
+		handleCancel(option);
 
 		// Provider selection
 		const selectedProvider =
 			(providerArg as Provider) || (await selectProvider());
-		if (!selectedProvider) {
-			console.log(chalk.yellow("\nChat session cancelled."));
-			process.exit(0);
-		}
+		// No need for null check here as handleCancel exits
 
 		// Model selection
 		const selectedModel = await selectModel(selectedProvider);
-		if (!selectedModel) {
-			console.log(chalk.yellow("\nChat session cancelled."));
-			process.exit(0);
-		}
+		// No need for null check here as handleCancel exits
 
 		// Set as default if chosen
 		if (option === "default") {
