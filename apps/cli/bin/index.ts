@@ -2,12 +2,16 @@ import { Command, program } from "commander";
 import { spawn } from "child_process";
 import chalk from "chalk";
 import { pkg } from "@/utils/paths";
-import { providers } from "@/utils/models";
+import { Provider, providers } from "@/utils/models";
 import { flash } from "@/commands/flash";
 import { init } from "@/bin/init";
-import listProviders from "@/commands/config/list-providers";
-import listModels from "@/commands/config/list-models";
-import showDefaults from "@/commands/config/defaults/show";
+import { listProviders } from "@/commands/config/list-providers";
+import { listModels } from "@/commands/config/list-models";
+import { showDefaults } from "@/commands/config/defaults/show";
+import { setDefaultChatModel } from "@/commands/config/defaults/chat-model";
+import { resetDefaults } from "@/commands/config/defaults/reset";
+import { configureProvider } from "@/commands/config/setup/provider";
+import { showConfig } from "@/commands/config/show";
 
 program.version(pkg.version, "-v, --version", "Display CLI version");
 
@@ -57,17 +61,7 @@ program
 								);
 								process.exit(1);
 							}
-							spawn(
-								"npx",
-								[
-									"tsx",
-									"commands/config/defaults/chat-model.ts",
-									options.provider,
-								],
-								{
-									stdio: "inherit",
-								},
-							);
+							setDefaultChatModel(options.provider);
 						}),
 				),
 		),
@@ -82,37 +76,43 @@ program
 			.description("Reset all configured default models")
 			.option("--hard", "Required flag for irreversible action")
 			.action((options) => {
-				spawn(
-					"npx",
-					[
-						"tsx",
-						"commands/config/defaults/reset.ts",
-						...(options.hard ? ["--hard"] : []),
-					],
-					{
-						stdio: "inherit",
-					},
-				);
+				resetDefaults(options.hard);
 			}),
 	)
 	.addCommand(
 		new Command("setup").description("Setup configurations").addCommand(
-			new Command("provider")
-				.description("Configure a provider")
-				.option("--<provider>", "Directly configure specified provider")
-				.action(() => {
-					spawn(
-						"npx",
-						[
-							"tsx",
-							"commands/config/setup/provider.ts",
-							...process.argv.slice(4),
-						],
-						{
-							stdio: "inherit",
-						},
+			(() => {
+				const providerCommand = new Command("provider")
+					.description("Configure a specific provider")
+					.action((options) => {
+						let selectedProvider: Provider | undefined = undefined;
+						for (const provider of providers) {
+							if (options[provider]) {
+								if (selectedProvider) {
+									console.error(
+										chalk.red(
+											"\nError: Please specify only one provider flag at a time.\n" +
+												"Example: --openai OR --groq\n",
+										),
+									);
+									process.exit(1);
+								}
+								selectedProvider = provider;
+							}
+						}
+
+						configureProvider(selectedProvider);
+					});
+
+				providers.forEach((provider) => {
+					providerCommand.option(
+						`--${provider}`,
+						`Configure the ${provider} provider`,
 					);
-				}),
+				});
+
+				return providerCommand;
+			})(),
 		),
 	);
 
@@ -122,22 +122,14 @@ program
 	.description("Display the current configuration")
 	.option("--unmasked", "Show unmasked API keys")
 	.action((_, options) => {
-		spawn(
-			"npx",
-			[
-				"tsx",
-				"commands/config/show.ts",
-				...(options.unmasked ? ["--unmasked"] : []),
-			],
-			{
-				stdio: "inherit",
-			},
-		);
+		showConfig(options.unmasked).catch((error) => {
+			console.error(chalk.red("Error showing configuration:"), error);
+			process.exit(1);
+		});
 	});
 
 program
 	.command("start")
-	.argument("<type>", "Type of session to start (chat)")
 	.argument("[provider]", "Provider to use for chat")
 	.option("--temp", "Use temporary model selection")
 	.description("Start a new chat session")

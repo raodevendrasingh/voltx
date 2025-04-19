@@ -2,7 +2,7 @@ import { getProviderColor, modelColor } from "@/utils/colors";
 import { models, providers, Provider } from "@/utils/models";
 import chalk from "chalk";
 
-export default function listModels(providerName?: string | null) {
+export function listModels(providerName?: string | null) {
 	console.log(chalk.bold("\nAvailable Models by Provider:\n"));
 
 	if (providerName && !providers.includes(providerName as Provider)) {

@@ -6,11 +6,8 @@ import { CONFIG_PATH } from "@/utils/paths";
 import { Provider } from "@/utils/models";
 import { logEvent } from "@/utils/logger";
 
-async function resetDefaults() {
+export async function resetDefaults(hardFlag: boolean) {
 	try {
-		const args = process.argv.slice(2);
-		const hardFlag = args.includes("--hard");
-
 		if (!fs.existsSync(CONFIG_PATH)) {
 			console.log(
 				chalk.yellow(
@@ -64,8 +61,3 @@ async function resetDefaults() {
 		process.exit(1);
 	}
 }
-
-resetDefaults().catch((error) => {
-	console.error(chalk.red("Error:"), error);
-	process.exit(1);
-});

@@ -11,7 +11,7 @@ function maskApiKey(key: string): string {
 	return "*".repeat(key.length - 5) + key.slice(-5);
 }
 
-async function showConfig() {
+export async function showConfig(showUnmasked: boolean = false) {
 	try {
 		if (!fs.existsSync(CONFIG_PATH)) {
 			console.log(
@@ -24,7 +24,6 @@ async function showConfig() {
 
 		const configContent = fs.readFileSync(CONFIG_PATH, "utf-8");
 		const config = TOML.parse(configContent) as Config;
-		const showUnmasked = process.argv.includes("--unmasked");
 
 		const displayConfig = JSON.parse(JSON.stringify(config));
 
@@ -63,6 +62,7 @@ async function showConfig() {
 			}
 		});
 
+		// Use the passed argument for the note
 		if (!showUnmasked) {
 			console.log(
 				chalk.gray(
@@ -72,11 +72,6 @@ async function showConfig() {
 		}
 	} catch (error) {
 		console.error(chalk.red("Error reading configuration:"), error);
-		process.exit(1);
+		throw error;
 	}
 }
-
-showConfig().catch((error) => {
-	console.error(chalk.red("Error showing configuration:"), error);
-	process.exit(1);
-});

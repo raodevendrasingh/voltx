@@ -6,7 +6,7 @@ import { CONFIG_PATH } from "@/utils/paths";
 import { Provider, providers } from "@/utils/models";
 import { getProviderColor, modelColor } from "@/utils/colors";
 
-export default async function showDefaults() {
+export async function showDefaults() {
 	try {
 		if (!fs.existsSync(CONFIG_PATH)) {
 			console.log(

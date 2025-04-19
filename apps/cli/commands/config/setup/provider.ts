@@ -1,7 +1,7 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import { select, text, isCancel, cancel } from "@clack/prompts";
+import { select, text, isCancel, cancel, outro, intro } from "@clack/prompts";
 import { Config } from "@/utils/types";
 import { CONFIG_PATH } from "@/utils/paths";
 import { models, providers, Provider, ModelName } from "@/utils/models";
@@ -38,7 +38,7 @@ async function selectProvider(
 	return provider as Provider;
 }
 
-async function configureProvider() {
+export async function configureProvider(providerName?: Provider) {
 	try {
 		if (!fs.existsSync(CONFIG_PATH)) {
 			console.log(
@@ -52,7 +52,7 @@ async function configureProvider() {
 		const configContent = fs.readFileSync(CONFIG_PATH, "utf-8");
 		const config = TOML.parse(configContent) as Config;
 
-		// Modified: Get unconfigured providers with reason
+		// Get unconfigured providers with reason
 		const unconfiguredProviders = providers.filter((p) => {
 			const providerConfig = config[p];
 			return (
@@ -64,31 +64,22 @@ async function configureProvider() {
 			);
 		});
 
-		// Check for provider flag (--provider=name)
-		const providerArg = process.argv
-			.find((arg) => arg.startsWith("--"))
-			?.slice(2);
-
 		let providerToConfig: Provider | null = null;
 
-		if (providerArg) {
-			// Handle --provider flag case
-			if (!providers.includes(providerArg as Provider)) {
-				console.error(
-					chalk.red("\nError: Unknown provider\n") +
-						chalk.gray("Available unconfigured providers: ") +
-						unconfiguredProviders
-							.map((p) => getProviderColor(p)(p))
-							.join(", ") +
-						"\n",
-				);
-				process.exit(1);
-			}
+		// Use the passed providerName directly
+		if (providerName) {
+			console.log("");
+			intro(
+				chalk.whiteBright(
+					`Let's set up your ${getProviderColor(providerName)(
+						providerName,
+					)} configuration!`,
+				),
+			);
 
-			// Modified: Check if provider is properly configured
-			const providerConfig = config[providerArg];
+			const providerConfig = config[providerName];
 			const isFullyConfigured =
-				config.user.providers.includes(providerArg as Provider) &&
+				config.user.providers.includes(providerName) &&
 				providerConfig?.API_KEY &&
 				providerConfig?.DEFAULT_MODEL &&
 				providerConfig.API_KEY.trim() !== "" &&
@@ -97,7 +88,9 @@ async function configureProvider() {
 			if (isFullyConfigured) {
 				console.log(
 					chalk.yellow(
-						`\nProvider "${providerArg}" is already fully configured.`,
+						`\nProvider "${getProviderColor(providerName)(
+							providerName,
+						)}" is already fully configured.`,
 					) +
 						"\nAvailable unconfigured providers: " +
 						unconfiguredProviders
@@ -108,17 +101,19 @@ async function configureProvider() {
 				process.exit(0);
 			}
 
-			providerToConfig = providerArg as Provider;
+			providerToConfig = providerName;
 		} else {
-			// Interactive provider selection
+			console.log("");
+			intro(
+				chalk.whiteBright(`Let's set up your provider configuration!`),
+			);
+
 			providerToConfig = await selectProvider(unconfiguredProviders);
 			if (!providerToConfig) {
-				// Exit handled by selectProvider if null is chosen
 				process.exit(0);
 			}
 		}
 
-		// Get current provider config
 		const currentConfig = config[providerToConfig] || {};
 
 		// Only ask for API key if it's missing
@@ -173,9 +168,9 @@ async function configureProvider() {
 			`User ${config.user.username} updated provider: ${providerToConfig}`,
 		);
 
-		console.log(
+		outro(
 			chalk.green(
-				`\nSuccess! Provider ${getProviderColor(providerToConfig)(
+				`Success! Provider ${getProviderColor(providerToConfig)(
 					providerToConfig,
 				)} configured with model ${modelColor(defaultModel)}\n`,
 			),
@@ -185,8 +180,3 @@ async function configureProvider() {
 		process.exit(1);
 	}
 }
-
-configureProvider().catch((error) => {
-	console.error(chalk.red("Error during provider configuration:"), error);
-	process.exit(1);
-});

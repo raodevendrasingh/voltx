@@ -80,13 +80,11 @@ async function configureProvider(provider: Provider): Promise<{
 	};
 }
 
-async function setDefaultModel() {
+export async function setDefaultChatModel(providerName: string | null) {
 	try {
-		const providerName = process.argv[2];
-
-		if (!providers.includes(providerName as Provider)) {
+		if (!providerName || !providers.includes(providerName as Provider)) {
 			console.error(
-				chalk.red("\nError: Invalid provider\n") +
+				chalk.red("\nError: Invalid or missing provider\n") +
 					chalk.gray("Available providers: ") +
 					providers.map((p) => getProviderColor(p)(p)).join(", ") +
 					"\n",
@@ -199,8 +197,3 @@ async function setDefaultModel() {
 		process.exit(1);
 	}
 }
-
-setDefaultModel().catch((error) => {
-	console.error(chalk.red("Error:"), error);
-	process.exit(1);
-});
