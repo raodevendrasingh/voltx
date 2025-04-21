@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import chalk from "chalk";
 import { LOGS_DIR } from "@/utils/paths";
+import { log } from "@clack/prompts";
 
 export const logEvent = (level: "info" | "warn" | "error", message: string) => {
 	const timestamp = new Date().toISOString();
@@ -18,6 +19,6 @@ export const logEvent = (level: "info" | "warn" | "error", message: string) => {
 	fs.appendFileSync(logFile, logMessage);
 
 	if (level === "error") {
-		console.log(chalk.red(logMessage.trim()));
+		log.error(chalk.red(logMessage.trim()));
 	}
 };

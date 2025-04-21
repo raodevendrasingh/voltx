@@ -12,7 +12,7 @@ const handleCancel = (value: unknown) => {
 
 export async function resetVoltx(dangerFlag: boolean) {
 	if (!fs.existsSync(CONFIG_PATH)) {
-		console.log(
+		log.warn(
 			chalk.yellow("Voltx not initialized.") +
 				" Run " +
 				chalk.cyan("`voltx init`") +

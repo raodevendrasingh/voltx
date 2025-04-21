@@ -5,16 +5,18 @@ import { Config } from "@/utils/types";
 import { CONFIG_PATH } from "@/utils/paths";
 import { Provider, providers } from "@/utils/models";
 import { getProviderColor, modelColor } from "@/utils/colors";
+import { log } from "@clack/prompts";
 
 export async function showDefaults() {
 	try {
 		if (!fs.existsSync(CONFIG_PATH)) {
-			console.log(
-				chalk.yellow(
-					"\nNo configuration found. Please run 'voltx init' first.\n",
-				),
+			log.warn(
+				chalk.yellow("Voltx not initialized.") +
+					" Run " +
+					chalk.cyan("`voltx init`") +
+					" to set it up.",
 			);
-			process.exit(1);
+			process.exit(0);
 		}
 
 		const configContent = fs.readFileSync(CONFIG_PATH, "utf-8");

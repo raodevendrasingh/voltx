@@ -54,10 +54,13 @@ export async function startChat(
 ) {
 	try {
 		if (!fs.existsSync(CONFIG_PATH)) {
-			log.warning(
-				"No configuration found. Please run 'voltx init' first.",
+			log.warn(
+				chalk.yellow("Voltx not initialized.") +
+					" Run " +
+					chalk.cyan("`voltx init`") +
+					" to set it up.",
 			);
-			process.exit(1);
+			process.exit(0);
 		}
 
 		const configContent = fs.readFileSync(CONFIG_PATH, "utf-8");

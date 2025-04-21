@@ -10,11 +10,12 @@ export async function flash() {
 	try {
 		if (!fs.existsSync(CONFIG_PATH)) {
 			log.warn(
-				chalk.yellow(
-					"No configuration found. Please run 'voltx init' first.\n",
-				),
+				chalk.yellow("Voltx not initialized.") +
+					" Run " +
+					chalk.cyan("`voltx init`") +
+					" to set it up.",
 			);
-			process.exit(1);
+			process.exit(0);
 		}
 
 		const configContent = fs.readFileSync(CONFIG_PATH, "utf-8");

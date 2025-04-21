@@ -5,20 +5,22 @@ import { Config } from "@/utils/types";
 import { CONFIG_PATH } from "@/utils/paths";
 import { Provider } from "@/utils/models";
 import { logEvent } from "@/utils/logger";
+import { log } from "@clack/prompts";
 
 export async function resetDefaults(hardFlag: boolean) {
 	try {
 		if (!fs.existsSync(CONFIG_PATH)) {
-			console.log(
-				chalk.yellow(
-					"\nNo configuration found. Please run 'voltx init' first.\n",
-				),
+			log.warn(
+				chalk.yellow("Voltx not initialized.") +
+					" Run " +
+					chalk.cyan("`voltx init`") +
+					" to set it up.",
 			);
-			process.exit(1);
+			process.exit(0);
 		}
 
 		if (!hardFlag) {
-			console.log(
+			log.warn(
 				`${chalk.red.bold(
 					"Warning:",
 				)} This command will reset all configured default models:\n` +
@@ -51,9 +53,9 @@ export async function resetDefaults(hardFlag: boolean) {
 
 		logEvent("info", "User reset all default model configurations");
 
-		console.log(
+		log.success(
 			chalk.green(
-				"\nAll default model configurations have been reset successfully!\n",
+				"All default model configurations have been reset successfully!\n",
 			),
 		);
 	} catch (error) {

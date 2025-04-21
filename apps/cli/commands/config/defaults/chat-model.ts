@@ -1,7 +1,7 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import { select, confirm, text, isCancel, cancel } from "@clack/prompts";
+import { select, confirm, text, isCancel, cancel, log } from "@clack/prompts";
 import { Config } from "@/utils/types";
 import { CONFIG_PATH } from "@/utils/paths";
 import { models, providers, Provider, ModelName } from "@/utils/models";
@@ -53,7 +53,7 @@ async function configureProvider(provider: Provider): Promise<{
 	handleCancel(shouldConfigure);
 
 	if (!shouldConfigure) {
-		console.log(chalk.yellow("\nSkipping default model configuration."));
+		log.warn(chalk.yellow("Skipping default model configuration."));
 		return null;
 	}
 
@@ -70,7 +70,7 @@ async function configureProvider(provider: Provider): Promise<{
 
 	const model = await selectModel(provider);
 	if (!model) {
-		console.log(chalk.yellow("\nExiting without setting default model."));
+		log.warn(chalk.yellow("\nExiting without setting default model."));
 		return null;
 	}
 
@@ -93,12 +93,13 @@ export async function setDefaultChatModel(providerName: string | null) {
 		}
 
 		if (!fs.existsSync(CONFIG_PATH)) {
-			console.log(
-				chalk.yellow(
-					"\nNo configuration found. Please run 'voltx init' first.\n",
-				),
+			log.warn(
+				chalk.yellow("Voltx not initialized.") +
+					" Run " +
+					chalk.cyan("`voltx init`") +
+					" to set it up.",
 			);
-			process.exit(1);
+			process.exit(0);
 		}
 
 		const configContent = fs.readFileSync(CONFIG_PATH, "utf-8");
@@ -106,7 +107,7 @@ export async function setDefaultChatModel(providerName: string | null) {
 
 		// Check if provider is configured
 		if (!config.user.providers.includes(providerName as Provider)) {
-			console.log(
+			log.warn(
 				chalk.yellow(
 					`\nProvider ${getProviderColor(providerName as Provider)(
 						providerName,
@@ -135,7 +136,7 @@ export async function setDefaultChatModel(providerName: string | null) {
 				`User configured provider ${providerName} and set default model: ${providerConfig.DEFAULT_MODEL}`,
 			);
 
-			console.log(
+			log.success(
 				chalk.green(
 					`\nSuccess! Provider ${getProviderColor(
 						providerName as Provider,
@@ -151,7 +152,7 @@ export async function setDefaultChatModel(providerName: string | null) {
 
 		// Check if provider has API key
 		if (!config[providerName]?.API_KEY) {
-			console.log(
+			log.error(
 				chalk.yellow(
 					`\nProvider ${getProviderColor(providerName as Provider)(
 						providerName,
@@ -164,9 +165,7 @@ export async function setDefaultChatModel(providerName: string | null) {
 		// Select model for configured provider
 		const model = await selectModel(providerName as Provider);
 		if (!model) {
-			console.log(
-				chalk.yellow("\nExiting without setting default model."),
-			);
+			log.warn(chalk.yellow("Exiting without setting default model."));
 			process.exit(0);
 		}
 
@@ -182,7 +181,7 @@ export async function setDefaultChatModel(providerName: string | null) {
 			`User configured default model: ${model} from provider ${providerName}`,
 		);
 
-		console.log(
+		log.success(
 			chalk.green(
 				`\nDefault model configured successfully: ${modelColor(
 					model,

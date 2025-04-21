@@ -1,9 +1,11 @@
 import { getProviderColor, modelColor } from "@/utils/colors";
 import { models, providers, Provider } from "@/utils/models";
+import { intro, log, outro } from "@clack/prompts";
 import chalk from "chalk";
 
 export function listModels(providerName?: string | null) {
-	console.log(chalk.bold("\nAvailable Models by Provider:\n"));
+	console.log("");
+	intro(chalk.bold("Available Models by Provider"));
 
 	if (providerName && !providers.includes(providerName as Provider)) {
 		console.error(
@@ -23,11 +25,11 @@ export function listModels(providerName?: string | null) {
 		const colorFn = getProviderColor(provider);
 		const providerModels = models[provider];
 
-		console.log(`${colorFn(provider)}`);
+		log.step(`${colorFn.italic(provider)}`);
 		providerModels.forEach((model) => {
-			console.log(`  - ${modelColor(model)}`);
+			console.log(`${chalk.gray("│")} - ${modelColor(model)}`);
 		});
 	}
 
-	console.log("");
+	outro(chalk.gray.italic("(end)"));
 }

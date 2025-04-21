@@ -17,7 +17,7 @@ import { resetVoltx } from "@/commands/reset";
 
 program.version(pkg.version, "-v, --version", "Display CLI version");
 
-program.command("init").description("Initialize configuration").action(init);
+program.command("init").description("Initialize voltx").action(init);
 
 program.command("flash").description("Show user info and stats").action(flash);
 
@@ -41,33 +41,6 @@ program
 			}),
 	)
 	.addCommand(
-		new Command("set").description("Set configuration options").addCommand(
-			new Command("default")
-				.description("Set default configurations")
-				.addCommand(
-					new Command("chat-model")
-						.description("Set the default model for chat sessions")
-						.option("--provider <provider>", "Provider name")
-						.action((options) => {
-							if (!options.provider) {
-								console.error(
-									chalk.red(
-										"\nError: Please provide a provider name with --provider flag\n",
-									) +
-										chalk.gray("Available providers: ") +
-										providers
-											.map((p) => chalk.bold(p))
-											.join(", ") +
-										"\n",
-								);
-								process.exit(1);
-							}
-							setDefaultChatModel(options.provider);
-						}),
-				),
-		),
-	)
-	.addCommand(
 		new Command("show-defaults")
 			.description("Show all configured default models")
 			.action(showDefaults),
@@ -81,40 +54,64 @@ program
 			}),
 	)
 	.addCommand(
-		new Command("setup").description("Setup configurations").addCommand(
-			(() => {
-				const providerCommand = new Command("provider")
-					.description("Configure a specific provider")
+		new Command("setup")
+			.description("Setup configurations")
+			.addCommand(
+				new Command("chat-model")
+					.description("Set the default model for chat sessions")
+					.option("--provider <provider>", "Provider name")
 					.action((options) => {
-						let selectedProvider: Provider | undefined = undefined;
-						for (const provider of providers) {
-							if (options[provider]) {
-								if (selectedProvider) {
-									console.error(
-										chalk.red(
-											"\nError: Please specify only one provider flag at a time.\n" +
-												"Example: --openai OR --groq\n",
-										),
-									);
-									process.exit(1);
-								}
-								selectedProvider = provider;
-							}
+						if (!options.provider) {
+							console.error(
+								chalk.red(
+									"\nError: Please provide a provider name with --provider flag\n",
+								) +
+									chalk.gray("Available providers: ") +
+									providers
+										.map((p) => chalk.bold(p))
+										.join(", ") +
+									"\n",
+							);
+							process.exit(1);
 						}
+						setDefaultChatModel(options.provider);
+					}),
+			)
+			.addCommand(
+				(() => {
+					const providerCommand = new Command("provider")
+						.description("Configure a specific provider")
+						.action((options) => {
+							let selectedProvider: Provider | undefined =
+								undefined;
+							for (const provider of providers) {
+								if (options[provider]) {
+									if (selectedProvider) {
+										console.error(
+											chalk.red(
+												"\nError: Please specify only one provider flag at a time.\n" +
+													"Example: --openai OR --groq\n",
+											),
+										);
+										process.exit(1);
+									}
+									selectedProvider = provider;
+								}
+							}
 
-						configureProvider(selectedProvider);
+							configureProvider(selectedProvider);
+						});
+
+					providers.forEach((provider) => {
+						providerCommand.option(
+							`--${provider}`,
+							`Configure the ${provider} provider`,
+						);
 					});
 
-				providers.forEach((provider) => {
-					providerCommand.option(
-						`--${provider}`,
-						`Configure the ${provider} provider`,
-					);
-				});
-
-				return providerCommand;
-			})(),
-		),
+					return providerCommand;
+				})(),
+			),
 	);
 
 program
@@ -156,7 +153,7 @@ program
 
 program.on("command:*", (operands) => {
 	console.error(chalk.red(`Unknown command: ${operands[0]}`));
-	console.log("Run with --help to see available commands.");
+	log.warn("Run with --help to see available commands.");
 	process.exitCode = 1;
 });
 

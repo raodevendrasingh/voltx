@@ -5,6 +5,7 @@ import { Config } from "@/utils/types";
 import { CONFIG_PATH } from "@/utils/paths";
 import { Provider } from "@/utils/models";
 import { getProviderColor } from "@/utils/colors";
+import { log } from "@clack/prompts";
 
 function maskApiKey(key: string): string {
 	if (key.length <= 5) return "*".repeat(key.length);
@@ -14,12 +15,13 @@ function maskApiKey(key: string): string {
 export async function showConfig(showUnmasked: boolean = false) {
 	try {
 		if (!fs.existsSync(CONFIG_PATH)) {
-			console.log(
-				chalk.yellow(
-					"\nNo configuration found. Please run 'voltx init' first.\n",
-				),
+			log.warn(
+				chalk.yellow("Voltx not initialized.") +
+					" Run " +
+					chalk.cyan("`voltx init`") +
+					" to set it up.",
 			);
-			process.exit(1);
+			process.exit(0);
 		}
 
 		const configContent = fs.readFileSync(CONFIG_PATH, "utf-8");
@@ -66,7 +68,7 @@ export async function showConfig(showUnmasked: boolean = false) {
 		if (!showUnmasked) {
 			console.log(
 				chalk.gray(
-					"\nNote: API keys are masked. Use --unmasked to show full keys.\n",
+					"\nNote: API keys are masked. Use --unmasked flag to show full keys.\n",
 				),
 			);
 		}

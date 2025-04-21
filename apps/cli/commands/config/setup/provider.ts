@@ -1,7 +1,15 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import { select, text, isCancel, cancel, outro, intro } from "@clack/prompts";
+import {
+	select,
+	text,
+	isCancel,
+	cancel,
+	outro,
+	intro,
+	log,
+} from "@clack/prompts";
 import { Config } from "@/utils/types";
 import { CONFIG_PATH } from "@/utils/paths";
 import { models, providers, Provider, ModelName } from "@/utils/models";
@@ -19,7 +27,7 @@ async function selectProvider(
 	unconfiguredProviders: Provider[],
 ): Promise<Provider | null> {
 	if (unconfiguredProviders.length === 0) {
-		console.log(chalk.yellow("\nAll providers have been configured."));
+		log.success(chalk.yellow("\nAll providers have been configured."));
 		return null;
 	}
 
@@ -41,12 +49,13 @@ async function selectProvider(
 export async function configureProvider(providerName?: Provider) {
 	try {
 		if (!fs.existsSync(CONFIG_PATH)) {
-			console.log(
-				chalk.yellow(
-					"\nNo configuration found. Please run 'voltx init' first.\n",
-				),
+			log.warn(
+				chalk.yellow("Voltx not initialized.") +
+					" Run " +
+					chalk.cyan("`voltx init`") +
+					" to set it up.",
 			);
-			process.exit(1);
+			process.exit(0);
 		}
 
 		const configContent = fs.readFileSync(CONFIG_PATH, "utf-8");
@@ -86,7 +95,7 @@ export async function configureProvider(providerName?: Provider) {
 				providerConfig.DEFAULT_MODEL.trim() !== "";
 
 			if (isFullyConfigured) {
-				console.log(
+				log.info(
 					chalk.yellow(
 						`\nProvider "${getProviderColor(providerName)(
 							providerName,

@@ -22,6 +22,7 @@ import {
 	confirm,
 	isCancel,
 	cancel,
+	log,
 } from "@clack/prompts";
 
 const handleCancel = (value: unknown) => {
@@ -61,7 +62,7 @@ const selectProvider = async (
 	);
 
 	if (availableProviders.length === 0) {
-		console.log(chalk.yellow("\nAll providers have been configured."));
+		log.success(chalk.yellow("All providers have been configured."));
 		return null;
 	}
 
@@ -135,17 +136,17 @@ export async function init() {
 	createDirectories();
 	showBanner();
 
+	intro(`Welcome to Voltx! Let's get you set up.`);
+
 	if (fs.existsSync(CONFIG_PATH)) {
-		console.log(
+		log.warn(
 			chalk.gray(
-				"\nConfiguration already exists, skipping initialization.",
+				"Configuration already exists, skipping initialization.",
 			),
 		);
-		console.log(chalk.gray('For help, run "voltx help"\n'));
+		outro(chalk.gray('For help, run "voltx help".'));
 		process.exit(0);
 	}
-
-	intro(`Welcome to Voltx! Let's get you set up.`);
 
 	const alias = await askAlias();
 	const timestamp = new Date().toISOString();
