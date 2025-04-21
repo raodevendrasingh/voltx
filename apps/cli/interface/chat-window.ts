@@ -8,6 +8,7 @@ import chalk from "chalk";
 import { getApi } from "@/utils/get-api";
 import markdown from "cli-markdown";
 import { getProviderColor, modelColor } from "@/utils/colors";
+import { outro } from "@clack/prompts";
 
 interface ChatInterfaceProps {
 	model: ModelName;
@@ -295,7 +296,7 @@ export default function createChatInterface({
 
 			case ":q":
 				cleanup();
-				console.log(chalk.red("Chat ended without saving!"));
+				outro(chalk.red("Chat ended without saving!"));
 				process.exit(0);
 				break;
 
@@ -316,9 +317,7 @@ export default function createChatInterface({
 
 					fs.writeFileSync(filePath, formattedMessages);
 					cleanup();
-					console.log(
-						chalk.greenBright(`Chat saved at path ${filePath}`),
-					);
+					outro(chalk.greenBright(`Chat saved at path ${filePath}`));
 					process.exit(0);
 				}
 				break;

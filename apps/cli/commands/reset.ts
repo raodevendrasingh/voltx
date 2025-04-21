@@ -1,6 +1,6 @@
 import fs from "fs";
 import chalk from "chalk";
-import { confirm, isCancel, cancel } from "@clack/prompts";
+import { confirm, isCancel, cancel, log } from "@clack/prompts";
 import { BASE_DIR, CONFIG_PATH } from "@/utils/paths";
 
 const handleCancel = (value: unknown) => {
@@ -10,10 +10,7 @@ const handleCancel = (value: unknown) => {
 	}
 };
 
-export default async function resetVoltx() {
-	const args = process.argv.slice(2);
-	const dangerFlag = args.includes("--danger");
-
+export async function resetVoltx(dangerFlag: boolean) {
 	if (!fs.existsSync(CONFIG_PATH)) {
 		console.log(
 			chalk.yellow("Voltx not initialized.") +
@@ -25,7 +22,7 @@ export default async function resetVoltx() {
 	}
 
 	if (!dangerFlag) {
-		console.log(
+		log.warn(
 			`${chalk.red.bold(
 				"Warning:",
 			)} This is an irreversible command and will remove all your data related to voltx.\n` +
@@ -34,9 +31,9 @@ export default async function resetVoltx() {
 		process.exit(0);
 	}
 
-	console.log(
-		`${chalk.red.bold("Caution:")} This will permanently remove:\n` +
-			`- configs\n- chats\n- logs\n- temp files\n- cache\n`,
+	log.warn(
+		`${chalk.red.bold("Caution:")} This will permanently remove all your voltx configurations and data.\n` +
+			`This action cannot be undone. Please ensure you have backups if necessary.`,
 	);
 
 	const shouldDelete = await confirm({
@@ -47,18 +44,16 @@ export default async function resetVoltx() {
 	handleCancel(shouldDelete);
 
 	if (!shouldDelete) {
-		console.log(chalk.yellow("Aborted! No changes made."));
+		log.error(chalk.yellow("Aborted! No changes made."));
 		process.exit(0);
 	}
 
 	try {
 		fs.rmSync(BASE_DIR, { recursive: true, force: true });
-		console.log(chalk.green("Success! voltx configurations cleared!"));
-		console.log("Run `voltx -h` for help.");
+		log.success(chalk.green("Success! voltx configurations cleared!"));
+		log.info("Run `voltx -h` for help.");
 	} catch (err) {
 		console.error(chalk.red("Failed to clear voltx configurations."), err);
 		process.exit(1);
 	}
 }
-
-resetVoltx();

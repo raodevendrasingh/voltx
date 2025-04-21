@@ -1,5 +1,4 @@
 import { Command, program } from "commander";
-import { spawn } from "child_process";
 import chalk from "chalk";
 import { pkg } from "@/utils/paths";
 import { Provider, providers } from "@/utils/models";
@@ -12,6 +11,9 @@ import { setDefaultChatModel } from "@/commands/config/defaults/chat-model";
 import { resetDefaults } from "@/commands/config/defaults/reset";
 import { configureProvider } from "@/commands/config/setup/provider";
 import { showConfig } from "@/commands/config/show";
+import { startChat } from "@/commands/chat/start-chat";
+import { log } from "@clack/prompts";
+import { resetVoltx } from "@/commands/reset";
 
 program.version(pkg.version, "-v, --version", "Display CLI version");
 
@@ -22,7 +24,6 @@ program.command("flash").description("Show user info and stats").action(flash);
 program
 	.command("config")
 	.description("Manage configuration settings")
-	// commands start from here
 	.addCommand(
 		new Command("list-providers")
 			.description("List all supported model providers")
@@ -129,30 +130,27 @@ program
 	});
 
 program
-	.command("start")
+	.command("chat")
 	.argument("[provider]", "Provider to use for chat")
 	.option("--temp", "Use temporary model selection")
 	.description("Start a new chat session")
-	.action((type, provider, options) => {
-		if (type !== "chat") {
-			console.error(
-				chalk.red("Only chat sessions are supported currently"),
-			);
-			process.exit(1);
-		}
-		const args = ["tsx", "commands/chat/start.ts"];
-		if (provider) args.push(provider);
-		if (options.temp) args.push("--temp");
-		spawn("npx", args, { stdio: "inherit" });
+	.action((provider, options) => {
+		startChat(provider as Provider | undefined, options.temp).catch(
+			(error) => {
+				log.error(`Failed to start chat session: ${error}`);
+				process.exit(1);
+			},
+		);
 	});
 
 program
 	.command("reset")
 	.description("Reset voltx configurations and remove all chats")
 	.option("--danger", "Dangerous irreversible action")
-	.action(() => {
-		spawn("npx", ["tsx", "commands/reset.ts", ...process.argv.slice(3)], {
-			stdio: "inherit",
+	.action((options) => {
+		resetVoltx(options.danger).catch((error: any) => {
+			log.error(`Failed to reset voltx: ${error}`);
+			process.exit(1);
 		});
 	});
 

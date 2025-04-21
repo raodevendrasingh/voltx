@@ -4,13 +4,14 @@ import TOML from "@iarna/toml";
 import { Config } from "@/utils/types";
 import { showBanner } from "@/utils/ascii";
 import { CONFIG_PATH, CHATS_DIR, pkg } from "@/utils/paths";
+import { log } from "@clack/prompts";
 
 export async function flash() {
 	try {
 		if (!fs.existsSync(CONFIG_PATH)) {
-			console.log(
+			log.warn(
 				chalk.yellow(
-					"\nNo configuration found. Please run 'voltx init' first.\n",
+					"No configuration found. Please run 'voltx init' first.\n",
 				),
 			);
 			process.exit(1);
