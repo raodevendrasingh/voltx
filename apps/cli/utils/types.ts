@@ -2,7 +2,7 @@ import { ModelName, Provider } from "@/utils/models";
 
 export interface Config {
 	user: {
-		username: string;
+		alias: string;
 		createdAt: string;
 		defaultModel: ModelName | null;
 		defaultProvider: Provider | null;

@@ -165,7 +165,7 @@ export async function configureProvider(providerName?: Provider) {
 
 		logEvent(
 			"info",
-			`User ${config.user.username} updated provider: ${providerToConfig}`,
+			`User ${config.user.alias} updated provider: ${providerToConfig}`,
 		);
 
 		outro(

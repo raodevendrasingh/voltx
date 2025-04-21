@@ -39,18 +39,18 @@ const createDirectories = () => {
 	});
 };
 
-const askUsername = async (): Promise<string> => {
-	const username = await text({
+const askAlias = async (): Promise<string> => {
+	const alias = await text({
 		message: "What should we call you?",
 		placeholder: "Enter your alias",
 		validate(value) {
-			if (!value) return "Username is required";
+			if (!value) return "An alias is required";
 			if (!/^[a-z0-9]+$/.test(value))
-				return "Username must contain only lowercase letters and numbers";
+				return "Alias must contain only lowercase characters.";
 		},
 	});
-	handleCancel(username);
-	return username as string;
+	handleCancel(alias);
+	return alias as string;
 };
 
 const selectProvider = async (
@@ -147,12 +147,12 @@ export async function init() {
 
 	intro(`Welcome to Voltx! Let's get you set up.`);
 
-	const username = await askUsername();
+	const alias = await askAlias();
 	const timestamp = new Date().toISOString();
 
 	const config: Config = {
 		user: {
-			username,
+			alias,
 			createdAt: timestamp,
 			providers: [],
 			defaultModel: null,
@@ -160,7 +160,7 @@ export async function init() {
 		},
 	};
 
-	logEvent("info", `User initialized voltx with alias: ${username}`);
+	logEvent("info", `User initialized voltx with alias: ${alias}`);
 
 	let shouldContinue = true;
 	while (shouldContinue) {
@@ -178,7 +178,7 @@ export async function init() {
 
 		logEvent(
 			"info",
-			`User ${username} configured provider: ${provider} with model: ${providerConfig.DEFAULT_MODEL}`,
+			`User ${alias} configured provider: ${provider} with model: ${providerConfig.DEFAULT_MODEL}`,
 		);
 
 		shouldContinue = await askToContinue();

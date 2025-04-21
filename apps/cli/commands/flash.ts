@@ -31,9 +31,7 @@ export async function flash() {
 		const configuredProviders = config.user.providers || [];
 
 		const stats = [
-			`${chalk.bold("User:")} ${chalk.cyan(
-				config.user.username || "N/A",
-			)}`,
+			`${chalk.bold("User:")} ${chalk.cyan(config.user.alias || "N/A")}`,
 			`${chalk.bold("Installed on:")} ${chalk.magenta(
 				createdDate?.toDateString() || "N/A",
 			)}`,
