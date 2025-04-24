@@ -1,11 +1,10 @@
 import fs from "fs";
 import chalk from "chalk";
-import TOML from "@iarna/toml";
-import { Config } from "@/utils/types";
+import config from "@/utils/load-config";
+import { log } from "@clack/prompts";
 import { CONFIG_PATH } from "@/utils/paths";
 import { Provider, providers } from "@/utils/models";
 import { getProviderColor, modelColor } from "@/utils/colors";
-import { log } from "@clack/prompts";
 
 export async function showDefaults() {
 	try {
@@ -18,9 +17,6 @@ export async function showDefaults() {
 			);
 			process.exit(0);
 		}
-
-		const configContent = fs.readFileSync(CONFIG_PATH, "utf-8");
-		const config = TOML.parse(configContent) as Config;
 
 		console.log(chalk.bold("\nDefault Configurations:\n"));
 
@@ -56,7 +52,7 @@ export async function showDefaults() {
 			}
 		});
 
-		console.log(); // Empty line at end
+		console.log();
 	} catch (error) {
 		console.error(chalk.red("Error showing defaults:"), error);
 		process.exit(1);

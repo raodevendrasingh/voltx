@@ -5,7 +5,7 @@ import blessed from "blessed";
 import path from "path";
 import fs from "fs";
 import chalk from "chalk";
-import { getApi } from "@/utils/get-api";
+import { createApi } from "@/utils/create-api";
 import markdown from "cli-markdown";
 import { getProviderColor, modelColor } from "@/utils/colors";
 import { outro } from "@clack/prompts";
@@ -197,7 +197,7 @@ export default function createChatInterface({
 		screen.render();
 
 		try {
-			const response = await getApi(model, provider, value.trim());
+			const response = await createApi(model, provider, value.trim());
 			const parsedResponse = markdown(response, {
 				code: true,
 				showLinks: true,

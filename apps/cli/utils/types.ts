@@ -1,6 +1,11 @@
 import { ModelName, Provider } from "@/utils/models";
 
-export interface Config {
+export interface ProviderConfig {
+	API_KEY: string;
+	DEFAULT_MODEL?: string;
+}
+
+export interface VoltxConfig {
 	user: {
 		alias: string;
 		createdAt: string;
@@ -8,5 +13,10 @@ export interface Config {
 		defaultProvider: Provider | null;
 		providers: Provider[];
 	};
+	openai?: ProviderConfig;
+	anthropic?: ProviderConfig;
+	google?: ProviderConfig;
+	deepseek?: ProviderConfig;
+	perplexity?: ProviderConfig;
 	[key: string]: any;
 }

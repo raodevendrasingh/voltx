@@ -10,7 +10,8 @@ import {
 	intro,
 	log,
 } from "@clack/prompts";
-import { Config } from "@/utils/types";
+import config from "@/utils/load-config";
+import { ProviderConfig } from "@/utils/types";
 import { CONFIG_PATH } from "@/utils/paths";
 import { models, providers, Provider, ModelName } from "@/utils/models";
 import { getProviderColor, modelColor } from "@/utils/colors";
@@ -58,12 +59,9 @@ export async function configureProvider(providerName?: Provider) {
 			process.exit(0);
 		}
 
-		const configContent = fs.readFileSync(CONFIG_PATH, "utf-8");
-		const config = TOML.parse(configContent) as Config;
-
 		// Get unconfigured providers with reason
 		const unconfiguredProviders = providers.filter((p) => {
-			const providerConfig = config[p];
+			const providerConfig = config[p] as ProviderConfig;
 			return (
 				!config.user.providers.includes(p) ||
 				!providerConfig?.API_KEY ||
@@ -86,7 +84,7 @@ export async function configureProvider(providerName?: Provider) {
 				),
 			);
 
-			const providerConfig = config[providerName];
+			const providerConfig = config[providerName] as ProviderConfig;
 			const isFullyConfigured =
 				config.user.providers.includes(providerName) &&
 				providerConfig?.API_KEY &&
@@ -123,7 +121,8 @@ export async function configureProvider(providerName?: Provider) {
 			}
 		}
 
-		const currentConfig = config[providerToConfig] || {};
+		const currentConfig =
+			(config[providerToConfig] as ProviderConfig) || {};
 
 		// Only ask for API key if it's missing
 		let apiKey = currentConfig.API_KEY;
@@ -156,7 +155,7 @@ export async function configureProvider(providerName?: Provider) {
 				})),
 			});
 			handleCancel(model);
-			defaultModel = model;
+			defaultModel = model as string;
 		}
 
 		// Update configuration preserving existing values

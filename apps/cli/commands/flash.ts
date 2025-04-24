@@ -1,7 +1,6 @@
 import fs from "fs";
 import chalk from "chalk";
-import TOML from "@iarna/toml";
-import { Config } from "@/utils/types";
+import config from "@/utils/load-config";
 import { showBanner } from "@/utils/ascii";
 import { CONFIG_PATH, CHATS_DIR, pkg } from "@/utils/paths";
 import { log } from "@clack/prompts";
@@ -17,9 +16,6 @@ export async function flash() {
 			);
 			process.exit(0);
 		}
-
-		const configContent = fs.readFileSync(CONFIG_PATH, "utf-8");
-		const config = TOML.parse(configContent) as Config;
 
 		const createdDate = config.user.createdAt
 			? new Date(config.user.createdAt)

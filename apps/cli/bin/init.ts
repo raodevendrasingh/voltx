@@ -12,7 +12,7 @@ import {
 import { models, providers, Provider, ModelName } from "@/utils/models";
 import { getProviderColor, modelColor } from "@/utils/colors";
 import { logEvent } from "@/utils/logger";
-import { Config } from "@/utils/types";
+import { VoltxConfig } from "@/utils/types";
 import { showBanner } from "@/utils/ascii";
 import {
 	intro,
@@ -151,7 +151,7 @@ export async function init() {
 	const alias = await askAlias();
 	const timestamp = new Date().toISOString();
 
-	const config: Config = {
+	const config: VoltxConfig = {
 		user: {
 			alias,
 			createdAt: timestamp,

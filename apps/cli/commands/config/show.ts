@@ -1,7 +1,7 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import { Config } from "@/utils/types";
+import config from "@/utils/load-config";
 import { CONFIG_PATH } from "@/utils/paths";
 import { Provider } from "@/utils/models";
 import { getProviderColor } from "@/utils/colors";
@@ -23,9 +23,6 @@ export async function showConfig(showUnmasked: boolean = false) {
 			);
 			process.exit(0);
 		}
-
-		const configContent = fs.readFileSync(CONFIG_PATH, "utf-8");
-		const config = TOML.parse(configContent) as Config;
 
 		const displayConfig = JSON.parse(JSON.stringify(config));
 

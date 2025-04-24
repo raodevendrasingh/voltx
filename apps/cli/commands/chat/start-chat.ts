@@ -1,8 +1,8 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
+import config from "@/utils/load-config";
 import { select, isCancel, intro, outro, log } from "@clack/prompts";
-import { Config } from "@/utils/types";
 import { logEvent } from "@/utils/logger";
 import { CONFIG_PATH } from "@/utils/paths";
 import { getProviderColor, modelColor } from "@/utils/colors";
@@ -63,9 +63,6 @@ export async function startChat(
 			process.exit(0);
 		}
 
-		const configContent = fs.readFileSync(CONFIG_PATH, "utf-8");
-		const config = TOML.parse(configContent) as Config;
-
 		// Validate providerArg if it exists
 		if (providerArg && !providers.includes(providerArg)) {
 			log.error(`Invalid provider specified: ${providerArg}`);
@@ -124,7 +121,7 @@ export async function startChat(
 					),
 				);
 				createChatInterface({
-					model: providerConfig.DEFAULT_MODEL,
+					model: providerConfig.DEFAULT_MODEL as ModelName,
 					provider: provider,
 				});
 				return;
@@ -229,7 +226,7 @@ export async function startChat(
 		// Set as default if chosen
 		if (option === "default") {
 			if (!config[selectedProvider]) {
-				config[selectedProvider] = {};
+				config[selectedProvider] = { API_KEY: "" };
 			}
 			if (providerArg) {
 				config[selectedProvider]!.DEFAULT_MODEL = selectedModel;

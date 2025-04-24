@@ -1,7 +1,7 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import { Config } from "@/utils/types";
+import config from "@/utils/load-config";
 import { CONFIG_PATH } from "@/utils/paths";
 import { Provider } from "@/utils/models";
 import { logEvent } from "@/utils/logger";
@@ -32,10 +32,6 @@ export async function resetDefaults(hardFlag: boolean) {
 			);
 			process.exit(0);
 		}
-
-		// Read current config
-		const configContent = fs.readFileSync(CONFIG_PATH, "utf-8");
-		const config = TOML.parse(configContent) as Config;
 
 		// Reset global defaults
 		config.user.defaultModel = null;

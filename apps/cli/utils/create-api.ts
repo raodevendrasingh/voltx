@@ -5,10 +5,10 @@ import {
 	openai,
 	perplexity,
 	systemPrompt,
-} from "./ai-config";
-import { ModelName, Provider } from "./models";
+} from "./setup-client";
+import type { ModelName, Provider } from "./models";
 
-export async function getApi(
+export async function createApi(
 	model: ModelName,
 	provider: Provider,
 	query: string,

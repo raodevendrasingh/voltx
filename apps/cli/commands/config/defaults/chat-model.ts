@@ -1,8 +1,8 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
+import config from "@/utils/load-config";
 import { select, confirm, text, isCancel, cancel, log } from "@clack/prompts";
-import { Config } from "@/utils/types";
 import { CONFIG_PATH } from "@/utils/paths";
 import { models, providers, Provider, ModelName } from "@/utils/models";
 import { getProviderColor, modelColor } from "@/utils/colors";
@@ -101,9 +101,6 @@ export async function setDefaultChatModel(providerName: string | null) {
 			);
 			process.exit(0);
 		}
-
-		const configContent = fs.readFileSync(CONFIG_PATH, "utf-8");
-		const config = TOML.parse(configContent) as Config;
 
 		// Check if provider is configured
 		if (!config.user.providers.includes(providerName as Provider)) {
