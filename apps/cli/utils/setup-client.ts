@@ -1,50 +1,55 @@
 import OpenAI from "openai";
 import config from "./load-config";
-import { ProviderConfig } from "./types";
-
-const requiredKeys = [
-	"openai.API_KEY",
-	"deepseek.API_KEY",
-	"google.API_KEY",
-	"perplexity.API_KEY",
-	"anthropic.API_KEY",
-] as const;
-
-type Provider = keyof Omit<typeof config, "user">;
-type Field = keyof ProviderConfig;
-
-for (const key of requiredKeys) {
-	const [provider, field] = key.split(".") as [Provider, Field];
-	const providerConfig = config[provider];
-
-	if (!providerConfig || !providerConfig[field]) {
-		throw new Error(`Missing required config key: ${key}`);
-	}
-}
 
 export const systemPrompt =
 	"You are a helpful AI assistant named voltx. You can answer questions, provide explanations, and assist with various tasks. Your goal is to be as helpful and informative as possible. If you don't know the answer, it's okay to say you don't know.";
 
-export const deepseek = new OpenAI({
-	apiKey: config.deepseek!.API_KEY,
-	baseURL: "https://api.deepseek.com",
-});
+export const deepseek = config.deepseek?.API_KEY
+	? new OpenAI({
+			apiKey: config.deepseek.API_KEY,
+			baseURL: "https://api.deepseek.com",
+		})
+	: null;
 
-export const openai = new OpenAI({
-	apiKey: config.openai!.API_KEY,
-});
+export const openai = config.openai?.API_KEY
+	? new OpenAI({
+			apiKey: config.openai.API_KEY,
+		})
+	: null;
 
-export const gemini = new OpenAI({
-	apiKey: config.google!.API_KEY,
-	baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
-});
+export const gemini = config.google?.API_KEY
+	? new OpenAI({
+			apiKey: config.google.API_KEY,
+			baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+		})
+	: null;
 
-export const perplexity = new OpenAI({
-	apiKey: config.perplexity!.API_KEY,
-	baseURL: "https://api.perplexity.ai",
-});
+export const perplexity = config.perplexity?.API_KEY
+	? new OpenAI({
+			apiKey: config.perplexity.API_KEY,
+			baseURL: "https://api.perplexity.ai",
+		})
+	: null;
 
-export const anthropic = new OpenAI({
-	apiKey: config.anthropic!.API_KEY,
-	baseURL: "https://api.anthropic.com/v1/",
-});
+export const anthropic = config.anthropic?.API_KEY
+	? new OpenAI({
+			apiKey: config.anthropic.API_KEY,
+			baseURL: "https://api.anthropic.com/v1/",
+		})
+	: null;
+
+export type ClientMap = {
+	openai: OpenAI | null;
+	deepseek: OpenAI | null;
+	google: OpenAI | null;
+	perplexity: OpenAI | null;
+	anthropic: OpenAI | null;
+};
+
+export const clients: ClientMap = {
+	openai,
+	deepseek,
+	google: gemini,
+	perplexity,
+	anthropic,
+};
