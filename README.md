@@ -11,10 +11,17 @@ No GUI. No fluff. Just volts.
 
 ## Installation
 
-To install Voltx, run the following:
+Install Voltx globally using your preferred package manager:
 
 ```bash
+# Using npm
 npm install -g voltx
+
+# Using bun
+bun add -g voltx
+
+# Using pnpm
+pnpm add -g voltx
 ```
 
 ## Usage

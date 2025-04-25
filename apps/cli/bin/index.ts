@@ -1,6 +1,5 @@
 import { Command, program } from "commander";
 import chalk from "chalk";
-import { pkg } from "@/utils/paths";
 import { Provider, providers } from "@/utils/models";
 import { flash } from "@/commands/flash";
 import { init } from "@/bin/init";
@@ -14,8 +13,9 @@ import { showConfig } from "@/commands/config/show";
 import { startChat } from "@/commands/chat/start-chat";
 import { log } from "@clack/prompts";
 import { resetVoltx } from "@/commands/reset";
+import { VERSION } from "./version";
 
-program.version(pkg.version, "-v, --version", "Display CLI version");
+program.version(VERSION, "-v, --version", "Display CLI version");
 
 program.command("init").description("Initialize voltx").action(init);
 

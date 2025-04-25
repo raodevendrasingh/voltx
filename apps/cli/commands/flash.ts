@@ -2,8 +2,9 @@ import fs from "fs";
 import chalk from "chalk";
 import config from "@/utils/load-config";
 import { showBanner } from "@/utils/ascii";
-import { CONFIG_PATH, CHATS_DIR, pkg } from "@/utils/paths";
+import { CONFIG_PATH, CHATS_DIR } from "@/utils/paths";
 import { log } from "@clack/prompts";
+import { VERSION } from "@/bin/version";
 
 export async function flash() {
 	try {
@@ -38,9 +39,7 @@ export async function flash() {
 			`${chalk.bold("Chats saved:")} ${chalk.red(
 				chatFiles.length.toString(),
 			)}`,
-			`${chalk.bold("CLI Version:")} ${chalk.cyan(
-				pkg.version,
-			)}${chalk.red(" (beta)")}`,
+			`${chalk.bold("CLI Version:")} ${chalk.cyan(VERSION)}`,
 		];
 
 		if (configuredProviders.length > 0) {

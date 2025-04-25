@@ -1,6 +1,6 @@
 import { formatDate, formatFileDate } from "@/utils/date";
 import { ModelName, Provider } from "@/utils/models";
-import { CHATS_DIR, pkg } from "@/utils/paths";
+import { CHATS_DIR } from "@/utils/paths";
 import blessed from "blessed";
 import path from "path";
 import fs from "fs";
@@ -9,6 +9,7 @@ import { createApi } from "@/utils/create-api";
 import markdown from "cli-markdown";
 import { getProviderColor, modelColor } from "@/utils/colors";
 import { outro } from "@clack/prompts";
+import { VERSION } from "@/bin/version";
 
 interface ChatInterfaceProps {
 	model: ModelName;
@@ -132,7 +133,7 @@ export default function createChatInterface({
 	});
 
 	function renderTopBar() {
-		const version = `voltx v${pkg.version}`;
+		const version = `voltx v${VERSION}`;
 		const status = "New Chat";
 		const timestamp = formatDate(new Date());
 
