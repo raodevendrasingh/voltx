@@ -1,6 +1,6 @@
 import fs from "fs";
 import chalk from "chalk";
-import { confirm, isCancel, cancel, log } from "@clack/prompts";
+import { confirm, isCancel, cancel, log, outro, intro } from "@clack/prompts";
 import { BASE_DIR, CONFIG_PATH } from "@/utils/paths";
 
 const handleCancel = (value: unknown) => {
@@ -22,13 +22,17 @@ export async function resetVoltx(dangerFlag: boolean) {
 		process.exit(0);
 	}
 
+	console.log();
+	intro(`${chalk.bold("Resetting voltx configurations")}`);
+
 	if (!dangerFlag) {
 		log.warn(
 			`${chalk.red.bold(
 				"Warning:",
-			)} This is an irreversible command and will remove all your data related to voltx.\n` +
-				`If you're sure, run with the ${chalk.bold("--danger")} flag.`,
+			)} This is an irreversible command and will remove all your data related to voltx.`,
 		);
+
+		outro(`If you're sure, run with the ${chalk.bold("--danger")} flag.`);
 		process.exit(0);
 	}
 
@@ -52,7 +56,7 @@ export async function resetVoltx(dangerFlag: boolean) {
 	try {
 		fs.rmSync(BASE_DIR, { recursive: true, force: true });
 		log.success(chalk.green("Success! voltx configurations cleared!"));
-		log.info("Run `voltx -h` for help.");
+		outro("Run `voltx -h` for help.");
 	} catch (err) {
 		console.error(chalk.red("Failed to clear voltx configurations."), err);
 		process.exit(1);
