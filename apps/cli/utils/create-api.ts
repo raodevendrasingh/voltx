@@ -1,130 +1,53 @@
-import {
-	anthropic,
-	deepseek,
-	gemini,
-	openai,
-	perplexity,
-	systemPrompt,
-} from "./setup-client";
+import OpenAI from "openai";
+import { systemPrompt, clients } from "./setup-client";
 import type { ModelName, Provider } from "./models";
+
+async function _callChatCompletionApi(
+	client: OpenAI,
+	model: ModelName,
+	query: string,
+): Promise<string> {
+	const response = await client.chat.completions.create({
+		model,
+		messages: [
+			{ role: "system", content: systemPrompt },
+			{
+				role: "user",
+				content: query,
+			},
+		],
+	});
+
+	const content = response.choices[0].message.content;
+
+	if (!content) {
+		throw new Error("Received empty response from the API provider");
+	}
+
+	return content;
+}
 
 export async function createApi(
 	model: ModelName,
 	provider: Provider,
 	query: string,
 ): Promise<string> {
-	switch (provider) {
-		case "openai":
-			return openaiApi(model, query);
+	const client = clients[provider];
 
-		case "anthropic":
-			return anthropicApi(model, query);
-
-		case "google":
-			return geminiApi(model, query);
-
-		case "deepseek":
-			return deepseekApi(model, query);
-
-		case "perplexity":
-			return perplexityApi(model, query);
-
-		default:
-			throw new Error(`Unsupported provider: ${provider}`);
-	}
-}
-
-async function geminiApi(model: ModelName, query: string): Promise<string> {
-	const response = await gemini.chat.completions.create({
-		model,
-		messages: [
-			{ role: "system", content: systemPrompt },
-			{
-				role: "user",
-				content: query,
-			},
-		],
-	});
-	const content = response.choices[0].message.content;
-	if (!content) {
-		throw new Error("Received empty response from Gemini API");
+	if (!client) {
+		throw new Error(`${provider} provider is not configured.`);
 	}
 
-	return content;
-}
-
-async function deepseekApi(model: ModelName, query: string): Promise<string> {
-	const response = await deepseek.chat.completions.create({
-		messages: [
-			{ role: "system", content: systemPrompt },
-			{
-				role: "user",
-				content: query,
-			},
-		],
-		model,
-	});
-	const content = response.choices[0].message.content;
-	if (!content) {
-		throw new Error("Received empty response from Deepseek API");
+	try {
+		return await _callChatCompletionApi(client, model, query);
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			throw new Error(
+				`API call failed for ${provider}: ${error.message}`,
+			);
+		}
+		throw new Error(
+			`An unexpected error occurred during the API call for ${provider}`,
+		);
 	}
-
-	return content;
-}
-
-async function openaiApi(model: ModelName, query: string): Promise<string> {
-	const response = await openai.chat.completions.create({
-		messages: [
-			{ role: "system", content: systemPrompt },
-			{
-				role: "user",
-				content: query,
-			},
-		],
-		model,
-	});
-	const content = response.choices[0].message.content;
-	if (!content) {
-		throw new Error("Received empty response from OpenAI API");
-	}
-
-	return content;
-}
-
-async function anthropicApi(model: ModelName, query: string): Promise<string> {
-	const response = await anthropic.chat.completions.create({
-		messages: [
-			{ role: "system", content: systemPrompt },
-			{
-				role: "user",
-				content: query,
-			},
-		],
-		model,
-	});
-	const content = response.choices[0].message.content;
-	if (!content) {
-		throw new Error("Received empty response from Anthropic API");
-	}
-
-	return content;
-}
-
-async function perplexityApi(model: ModelName, query: string): Promise<string> {
-	const response = await perplexity.chat.completions.create({
-		messages: [
-			{ role: "system", content: systemPrompt },
-			{
-				role: "user",
-				content: query,
-			},
-		],
-		model,
-	});
-	const content = response.choices[0].message.content;
-	if (!content) {
-		throw new Error("Received empty response from Perplexity API");
-	}
-
-	return content;
 }

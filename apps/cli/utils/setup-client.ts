@@ -1,8 +1,10 @@
 import OpenAI from "openai";
-import config from "./load-config";
+import loadConfig from "./load-config";
 
 export const systemPrompt =
 	"You are a helpful AI assistant named voltx. You can answer questions, provide explanations, and assist with various tasks. Your goal is to be as helpful and informative as possible. If you don't know the answer, it's okay to say you don't know.";
+
+const config = loadConfig();
 
 export const deepseek = config.deepseek?.API_KEY
 	? new OpenAI({
