@@ -5,7 +5,7 @@
 	"main": "dist/index.js",
 	"type": "module",
 	"bin": {
-		"voltx": "./dist/index.js"
+		"voltx": "dist/index.js"
 	},
 	"scripts": {
 		"prepublishOnly": "cp ../../README.md ./README.md && cp ../../LICENSE ./LICENSE",

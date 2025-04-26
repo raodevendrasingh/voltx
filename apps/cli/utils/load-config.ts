@@ -12,14 +12,30 @@ export default function config(): VoltxConfig {
 		return parsedConfig as unknown as VoltxConfig;
 	} catch (error: any) {
 		if (error.code === "ENOENT") {
-			log.warn(
-				chalk.yellow("Voltx not initialized.") +
-					" Run " +
-					chalk.cyan("`voltx init`") +
-					" to set it up.",
-			);
-			console.log();
-			process.exit(0);
+			// Check if the command is 'init' before showing the warning
+			const isInitCommand = process.argv.slice(2)[0] === "init";
+
+			if (!isInitCommand) {
+				log.warn(
+					chalk.yellow("Voltx not initialized.") +
+						" Run " +
+						chalk.cyan("`voltx init`") +
+						" to set it up.",
+				);
+				console.log();
+				process.exit(0);
+			}
+
+			// Return an empty config object when init is running
+			return {
+				user: {
+					alias: "",
+					createdAt: "",
+					providers: [],
+					defaultModel: null,
+					defaultProvider: null,
+				},
+			} as VoltxConfig;
 		} else {
 			log.error(
 				chalk.red("Error loading Voltx config:") + " " + error.message,
