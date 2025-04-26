@@ -1,7 +1,7 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import config from "@/utils/load-config";
+import loadConfig from "@/utils/load-config";
 import { CONFIG_PATH } from "@/utils/paths";
 import { Provider } from "@/utils/models";
 import { logEvent } from "@/utils/logger";
@@ -9,15 +9,7 @@ import { log } from "@clack/prompts";
 
 export async function resetDefaults(hardFlag: boolean) {
 	try {
-		if (!fs.existsSync(CONFIG_PATH)) {
-			log.warn(
-				chalk.yellow("Voltx not initialized.") +
-					" Run " +
-					chalk.cyan("`voltx init`") +
-					" to set it up.",
-			);
-			process.exit(0);
-		}
+		const config = loadConfig();
 
 		if (!hardFlag) {
 			log.warn(

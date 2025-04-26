@@ -1,11 +1,8 @@
-import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import config from "@/utils/load-config";
-import { CONFIG_PATH } from "@/utils/paths";
+import loadConfig from "@/utils/load-config";
 import { Provider } from "@/utils/models";
 import { getProviderColor } from "@/utils/colors";
-import { log } from "@clack/prompts";
 
 function maskApiKey(key: string): string {
 	if (key.length <= 5) return "*".repeat(key.length);
@@ -14,15 +11,7 @@ function maskApiKey(key: string): string {
 
 export async function showConfig(showUnmasked: boolean = false) {
 	try {
-		if (!fs.existsSync(CONFIG_PATH)) {
-			log.warn(
-				chalk.yellow("Voltx not initialized.") +
-					" Run " +
-					chalk.cyan("`voltx init`") +
-					" to set it up.",
-			);
-			process.exit(0);
-		}
+		const config = loadConfig();
 
 		const displayConfig = JSON.parse(JSON.stringify(config));
 

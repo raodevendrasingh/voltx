@@ -1,22 +1,11 @@
-import fs from "fs";
 import chalk from "chalk";
-import config from "@/utils/load-config";
-import { log } from "@clack/prompts";
-import { CONFIG_PATH } from "@/utils/paths";
+import loadConfig from "@/utils/load-config";
 import { Provider, providers } from "@/utils/models";
 import { getProviderColor, modelColor } from "@/utils/colors";
 
-export async function showDefaults() {
+export function showDefaults() {
 	try {
-		if (!fs.existsSync(CONFIG_PATH)) {
-			log.warn(
-				chalk.yellow("Voltx not initialized.") +
-					" Run " +
-					chalk.cyan("`voltx init`") +
-					" to set it up.",
-			);
-			process.exit(0);
-		}
+		const config = loadConfig();
 
 		console.log(chalk.bold("\nDefault Configurations:\n"));
 

@@ -1,22 +1,14 @@
 import fs from "fs";
 import chalk from "chalk";
-import config from "@/utils/load-config";
+import loadConfig from "@/utils/load-config";
 import { showBanner } from "@/utils/ascii";
-import { CONFIG_PATH, CHATS_DIR } from "@/utils/paths";
-import { log } from "@clack/prompts";
+import { CHATS_DIR } from "@/utils/paths";
 import { VERSION } from "@/bin/version";
+import { Provider } from "@/utils/models";
 
 export async function flash() {
 	try {
-		if (!fs.existsSync(CONFIG_PATH)) {
-			log.warn(
-				chalk.yellow("Voltx not initialized.") +
-					" Run " +
-					chalk.cyan("`voltx init`") +
-					" to set it up.",
-			);
-			process.exit(0);
-		}
+		const config = loadConfig();
 
 		const createdDate = config.user.createdAt
 			? new Date(config.user.createdAt)
@@ -46,7 +38,7 @@ export async function flash() {
 			stats.push(
 				`\n${chalk.bold("Configured Providers:")}`,
 				...configuredProviders.map(
-					(provider) =>
+					(provider: Provider) =>
 						`  ${chalk.gray("•")} ${chalk.cyan(
 							provider,
 						)} ${chalk.gray("→")} ${

@@ -18,6 +18,7 @@ export async function resetVoltx(dangerFlag: boolean) {
 				chalk.cyan("`voltx init`") +
 				" to set it up.",
 		);
+		console.log();
 		process.exit(0);
 	}
 

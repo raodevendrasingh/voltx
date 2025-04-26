@@ -10,7 +10,7 @@ import {
 	intro,
 	log,
 } from "@clack/prompts";
-import config from "@/utils/load-config";
+import loadConfig from "@/utils/load-config";
 import { ProviderConfig } from "@/utils/types";
 import { CONFIG_PATH } from "@/utils/paths";
 import { models, providers, Provider, ModelName } from "@/utils/models";
@@ -49,15 +49,7 @@ async function selectProvider(
 
 export async function configureProvider(providerName?: Provider) {
 	try {
-		if (!fs.existsSync(CONFIG_PATH)) {
-			log.warn(
-				chalk.yellow("Voltx not initialized.") +
-					" Run " +
-					chalk.cyan("`voltx init`") +
-					" to set it up.",
-			);
-			process.exit(0);
-		}
+		const config = loadConfig();
 
 		// Get unconfigured providers with reason
 		const unconfiguredProviders = providers.filter((p) => {

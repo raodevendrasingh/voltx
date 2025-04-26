@@ -1,7 +1,7 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import config from "@/utils/load-config";
+import loadConfig from "@/utils/load-config";
 import { select, confirm, text, isCancel, cancel, log } from "@clack/prompts";
 import { CONFIG_PATH } from "@/utils/paths";
 import { models, providers, Provider, ModelName } from "@/utils/models";
@@ -92,15 +92,7 @@ export async function setDefaultChatModel(providerName: string | null) {
 			process.exit(1);
 		}
 
-		if (!fs.existsSync(CONFIG_PATH)) {
-			log.warn(
-				chalk.yellow("Voltx not initialized.") +
-					" Run " +
-					chalk.cyan("`voltx init`") +
-					" to set it up.",
-			);
-			process.exit(0);
-		}
+		const config = loadConfig();
 
 		// Check if provider is configured
 		if (!config.user.providers.includes(providerName as Provider)) {
