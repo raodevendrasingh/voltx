@@ -2,7 +2,15 @@ import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
 import loadConfig from "@/utils/load-config";
-import { select, isCancel, intro, outro, log } from "@clack/prompts";
+import {
+	select,
+	isCancel,
+	intro,
+	outro,
+	log,
+	text,
+	cancel,
+} from "@clack/prompts";
 import { logEvent } from "@/utils/logger";
 import { CONFIG_PATH } from "@/utils/paths";
 import { getProviderColor, modelColor } from "@/utils/colors";
@@ -11,7 +19,7 @@ import createChatInterface from "@/interface/chat-window";
 
 const handleCancel = (value: unknown) => {
 	if (isCancel(value)) {
-		outro(chalk.yellow("Operation cancelled."));
+		cancel("Operation cancelled.");
 		process.exit(0);
 	}
 };
@@ -48,12 +56,26 @@ async function selectModel(provider: Provider): Promise<ModelName> {
 	return model as ModelName;
 }
 
+const askApiKey = async (provider: Provider): Promise<string> => {
+	const apiKey = await text({
+		message: `Enter API key for ${getProviderColor(provider)(provider)}:`,
+		validate: (input: string) => {
+			if (!input || input.trim() === "") {
+				return "API key is required";
+			}
+		},
+	});
+	handleCancel(apiKey);
+	return apiKey as string;
+};
+
 export async function startChat(
-	providerArg?: Provider, // Make provider optional and typed
-	useTemp: boolean = false, // Default useTemp to false
+	providerArg?: Provider,
+	useTemp: boolean = false,
 ) {
 	try {
 		const config = loadConfig();
+		let configUpdated = false;
 
 		// Validate providerArg if it exists
 		if (providerArg && !providers.includes(providerArg)) {
@@ -62,13 +84,32 @@ export async function startChat(
 			process.exit(1);
 		}
 
-		// If provider specified
+		// --- Provider Configuration Check ---
 		if (providerArg) {
-			const provider = providerArg; // Use the argument directly
+			const provider = providerArg;
+			if (!config[provider]?.API_KEY) {
+				log.warning(
+					`Provider ${getProviderColor(provider)(
+						provider,
+					)} is not configured. Let's set it up.`,
+				);
+				const apiKey = await askApiKey(provider);
+
+				if (!config[provider]) {
+					config[provider] = { API_KEY: apiKey, DEFAULT_MODEL: null };
+				} else {
+					config[provider]!.API_KEY = apiKey;
+				}
+
+				if (!config.user.providers.includes(provider)) {
+					config.user.providers.push(provider);
+				}
+				configUpdated = true;
+				logEvent("info", `User configured API key for ${provider}`);
+			}
 
 			// If --temp flag is used, go directly to model selection
 			if (useTemp) {
-				console.log("");
 				intro(
 					chalk.cyan(
 						`Selecting temporary model from ${getProviderColor(
@@ -90,6 +131,17 @@ export async function startChat(
 							`from ${getProviderColor(provider)(provider)}...`,
 					),
 				);
+
+				// Write config *before* starting interface if needed
+				if (configUpdated) {
+					fs.writeFileSync(CONFIG_PATH, TOML.stringify(config));
+					log.info(
+						`Configuration updated (API key for ${getProviderColor(
+							provider,
+						)(provider)} saved).`,
+					);
+				}
+
 				createChatInterface({
 					model: selectedModel,
 					provider: provider,
@@ -112,6 +164,16 @@ export async function startChat(
 							`from ${getProviderColor(provider)(provider)}...`,
 					),
 				);
+
+				if (configUpdated) {
+					fs.writeFileSync(CONFIG_PATH, TOML.stringify(config));
+					log.info(
+						`Configuration updated (API key for ${getProviderColor(
+							provider,
+						)(provider)} saved).`,
+					);
+				}
+
 				createChatInterface({
 					model: providerConfig.DEFAULT_MODEL as ModelName,
 					provider: provider,
@@ -120,7 +182,6 @@ export async function startChat(
 			}
 		}
 
-		// If no provider specified OR provider specified but no default model, check global default (unless --temp)
 		if (
 			!providerArg &&
 			!useTemp &&
@@ -148,11 +209,12 @@ export async function startChat(
 			return;
 		}
 
-		// --- Selection Logic ---
+		// --- Interactive Selection Logic ---
 		let selectedProvider: Provider;
 		let selectedModel: ModelName;
 		let option: symbol | "default" | "temporary" | undefined = undefined;
 
+		// Scenario 1: --temp with providerArg (API key handled above)
 		if (useTemp && providerArg) {
 			selectedProvider = providerArg;
 			intro(
@@ -164,12 +226,43 @@ export async function startChat(
 			);
 			selectedModel = await selectModel(selectedProvider);
 			option = "temporary";
-		} else if (useTemp && !providerArg) {
-			intro(chalk.cyan("Selecting temporary provider and model..."));
+		}
+		// Scenario 2: --temp without providerArg
+		else if (useTemp && !providerArg) {
+			intro(
+				chalk.cyan("Select a temporary model for this chat session..."),
+			);
 			selectedProvider = await selectProvider();
+
+			if (!config[selectedProvider]?.API_KEY) {
+				log.warning(
+					`Provider ${getProviderColor(selectedProvider)(
+						selectedProvider,
+					)} is not configured. Let's set it up.`,
+				);
+				const apiKey = await askApiKey(selectedProvider);
+				if (!config[selectedProvider]) {
+					config[selectedProvider] = {
+						API_KEY: apiKey,
+						DEFAULT_MODEL: null,
+					};
+				} else {
+					config[selectedProvider]!.API_KEY = apiKey;
+				}
+				if (!config.user.providers.includes(selectedProvider)) {
+					config.user.providers.push(selectedProvider);
+				}
+				configUpdated = true;
+				logEvent(
+					"info",
+					`User configured API key for ${selectedProvider}`,
+				);
+			}
 			selectedModel = await selectModel(selectedProvider);
 			option = "temporary";
-		} else if (providerArg && !useTemp) {
+		}
+		// Scenario 3: providerArg without --temp (API key handled above, default model missing)
+		else if (providerArg && !useTemp) {
 			selectedProvider = providerArg;
 			log.warning(
 				`No default model configured for ${getProviderColor(
@@ -195,7 +288,9 @@ export async function startChat(
 			});
 			handleCancel(option);
 			selectedModel = await selectModel(selectedProvider);
-		} else {
+		}
+		// Scenario 4: No providerArg, no --temp, no global default
+		else {
 			log.warning("No default model configured.");
 			option = await select<"default" | "temporary">({
 				message: "How would you like to proceed?",
@@ -212,15 +307,45 @@ export async function startChat(
 			});
 			handleCancel(option);
 			selectedProvider = await selectProvider();
+
+			if (!config[selectedProvider]?.API_KEY) {
+				log.warning(
+					`Provider ${getProviderColor(selectedProvider)(
+						selectedProvider,
+					)} is not configured. Let's set it up.`,
+				);
+				const apiKey = await askApiKey(selectedProvider);
+				if (!config[selectedProvider]) {
+					config[selectedProvider] = {
+						API_KEY: apiKey,
+						DEFAULT_MODEL: null,
+					};
+				} else {
+					config[selectedProvider]!.API_KEY = apiKey;
+				}
+				if (!config.user.providers.includes(selectedProvider)) {
+					config.user.providers.push(selectedProvider);
+				}
+				configUpdated = true;
+				logEvent(
+					"info",
+					`User configured API key for ${selectedProvider}`,
+				);
+			}
 			selectedModel = await selectModel(selectedProvider);
 		}
 
-		// Set as default if chosen
+		if (!config[selectedProvider]) {
+			config[selectedProvider] = {
+				API_KEY: config[selectedProvider]?.API_KEY || "",
+				DEFAULT_MODEL: null,
+			};
+		}
+
+		// Set as default model if chosen
 		if (option === "default") {
-			if (!config[selectedProvider]) {
-				config[selectedProvider] = { API_KEY: "" };
-			}
 			if (providerArg) {
+				// Set provider-specific default
 				config[selectedProvider]!.DEFAULT_MODEL = selectedModel;
 				logEvent(
 					"info",
@@ -232,15 +357,26 @@ export async function startChat(
 					)} configured successfully!`,
 				);
 			} else {
+				// Set global default
 				config.user.defaultModel = selectedModel;
 				config.user.defaultProvider = selectedProvider;
+
+				// Also set the provider's default model if it wasn't set globally before
+				if (!config[selectedProvider]!.DEFAULT_MODEL) {
+					config[selectedProvider]!.DEFAULT_MODEL = selectedModel;
+				}
 				logEvent(
 					"info",
 					`User set global default chat model to ${selectedModel} from provider ${selectedProvider}`,
 				);
 				log.success("Global default model configured successfully!");
 			}
+			configUpdated = true;
+		}
+
+		if (configUpdated) {
 			fs.writeFileSync(CONFIG_PATH, TOML.stringify(config));
+			log.info(`Configuration updated successfully.`);
 		}
 
 		logEvent(

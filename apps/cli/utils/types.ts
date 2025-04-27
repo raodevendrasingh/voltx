@@ -2,7 +2,7 @@ import { ModelName, Provider } from "@/utils/models";
 
 export interface ProviderConfig {
 	API_KEY: string;
-	DEFAULT_MODEL?: string;
+	DEFAULT_MODEL: string | null;
 }
 
 export interface VoltxConfig {
