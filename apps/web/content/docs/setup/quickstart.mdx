@@ -1,0 +1,81 @@
+---
+title: Quickstart
+description: Installing VoltX on your machine.
+---
+
+import { Tab, Tabs } from "fumadocs-ui/components/tabs";
+import { Steps, Step } from "fumadocs-ui/components/steps";
+import { File, Folder, Files } from "fumadocs-ui/components/files";
+import { Callout } from "fumadocs-ui/components/callout";
+
+### Installation
+
+Install Voltx globally using your preferred package manager
+
+```package-install
+npm i -g voltx
+```
+
+### Initial Setup
+
+After installation, you'll need to initialize VoltX with your preferred configuration:
+
+```bash
+voltx init
+```
+
+<Callout title="API Key Required">
+	You must configure at least one AI provider with a valid API key during the
+	`init` process to use VoltX's core features like chat and agent mode.
+</Callout>
+
+This command will guide you through the setup process:
+
+<Steps>
+
+<Step> Create a User Alias </Step>
+<p>Enter a unique username for your VoltX profile.</p>
+
+<Step> Select AI Provider </Step>
+<p>Choose the first AI service you want to connect with.</p>
+
+<Step> Enter API Key </Step>
+<p>Paste the API key for the selected provider.</p>
+
+<Step> Select Default Model </Step>
+<p>Pick the default AI model you want to use with this provider.</p>
+
+  <Step> Configure More Providers (Optional) </Step>
+  <p>Choose whether to add another AI provider now or finish setup.</p>
+</Steps>
+
+## Configuration Structure
+
+VoltX creates a configuration directory structure in your home directory:
+
+<Files>
+	<Folder name=".voltx" defaultOpen>
+		<File name="config.toml" />
+		<Folder name="logs" />
+		<Folder name="chats" />
+		<Folder name="temp" />
+		<Folder name="cache" />
+	</Folder>
+</Files>
+
+## VoltX Help
+
+To verify your installation and see available commands:
+
+```bash
+voltx help
+```
+
+## Next Steps
+
+Now that you have VoltX installed and configured, you can:
+
+- Explore the [commands reference](/docs/setup/reference)
+- Learn about [configuring additional settings](/docs/setup/configuration)
+- Start a [chat session](/docs/usage/chat)
+- Use CLI [agent](/docs/usage/agent)
