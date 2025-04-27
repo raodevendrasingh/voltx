@@ -116,10 +116,19 @@ program
 
 program
 	.command("show")
-	.argument("config", "Show configuration")
+	.argument("<type>", "Type of information to show (only 'config' supported)")
 	.description("Display the current configuration")
 	.option("--unmasked", "Show unmasked API keys")
-	.action((_, options) => {
+	.action((type, options) => {
+		if (type !== "config") {
+			console.error(chalk.red(`Unknown show type: ${type}`));
+			console.log(
+				chalk.gray(
+					"Only 'config' is supported. Example: voltx show config",
+				),
+			);
+			process.exit(1);
+		}
 		showConfig(options.unmasked).catch((error) => {
 			console.error(chalk.red("Error showing configuration:"), error);
 			process.exit(1);
