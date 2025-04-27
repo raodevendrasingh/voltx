@@ -30,7 +30,7 @@
 	],
 	"author": "tminusdev",
 	"license": "MIT",
-	"packageManager": "pnpm@10.7.1",
+	"packageManager": "pnpm@10.9.0",
 	"dependencies": {
 		"@clack/prompts": "^0.10.1",
 		"@iarna/toml": "^2.2.5",
@@ -39,28 +39,28 @@
 		"cli-markdown": "^3.4.0",
 		"commander": "^13.1.0",
 		"cross-env": "^7.0.3",
-		"dotenv": "^16.4.7",
-		"figlet": "^1.8.0",
+		"dotenv": "^16.5.0",
+		"figlet": "^1.8.1",
 		"ink": "^5.2.0",
-		"ink-select-input": "^6.0.0",
+		"ink-select-input": "^6.1.0",
 		"ink-text-input": "^6.0.0",
-		"openai": "^4.92.0",
+		"openai": "^4.96.0",
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0"
 	},
 	"devDependencies": {
 		"@types/blessed": "^0.1.25",
 		"@types/figlet": "^1.7.0",
-		"@types/node": "^22.14.0",
-		"@types/react": "^19.1.0",
+		"@types/node": "^22.15.2",
+		"@types/react": "^19.1.2",
 		"@types/terminal-kit": "^2.5.7",
-		"@typescript-eslint/eslint-plugin": "^8.29.0",
-		"@typescript-eslint/parser": "^8.29.0",
-		"@vitejs/plugin-react": "^4.3.4",
-		"eslint": "^9.24.0",
+		"@typescript-eslint/eslint-plugin": "^8.31.0",
+		"@typescript-eslint/parser": "^8.31.0",
+		"@vitejs/plugin-react": "^4.4.1",
+		"eslint": "^9.25.1",
 		"tsup": "^8.4.0",
 		"tsx": "^4.19.3",
 		"typescript": "^5.8.3",
-		"vite": "^6.2.5"
+		"vite": "^6.3.3"
 	}
 }
