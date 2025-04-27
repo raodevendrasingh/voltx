@@ -1,4 +1,119 @@
 ---
 title: Changelog
-description: VoltX Changelog
+description: A record of notable changes to VoltX - a modern CLI that brings AI power directly to your terminal.
 ---
+
+## v0.3.8
+
+### UI Enhancements
+
+- Added command to clear the chat screen and message history
+- Added help information in the chat window
+- Updated `flash` command to include more stats and VoltX logo
+- Added box labels in chat window
+
+### Bug Fixes
+
+- Fixed prompt to correctly ask for missing API keys during model selection
+- Fixed show command to work only with correct argument
+
+## v0.3.7
+
+### Backend Improvements
+
+- Restructured reset commands
+- Skip uninitialization warning for init command
+
+## v0.3.6
+
+### Core Infrastructure
+
+- Updated API client logic
+- Enhanced VoltX configuration checking logic
+- Improved version handling and setup scripts
+
+## v0.3.5
+
+### User Experience
+
+- Renamed `username` to `alias` for better clarity
+- Updated command calling patterns for chat and reset commands
+- Migrated from inquirer to @clack/prompts
+
+### Configuration
+
+- Added environment variable reading from the config
+- Updated config type
+- Improved prompt logging
+- Restructured commands
+- Fixed command calling for list-models and show-defaults commands
+
+## v0.3.4
+
+### Documentation
+
+- Added README, License, and .npmignore files
+- Updated turbo.json
+
+## v0.3.3 - v0.3.1
+
+### Build System
+
+- Removed shebang
+- Converted .tsx files to .ts
+- Configured tsup for builds
+- Fixed minor npm publish errors
+
+## v0.3.0
+
+### Branding
+
+- Rebranded to VoltX
+- Upgraded dependencies
+
+### Chat Functionality
+
+- Added multi-provider support via OpenAI SDK
+- Implemented colorized title and message dividers
+- Added display of parsed AI responses
+- Integrated command mode with chat save and quit
+- Created chatbox and inputbox with AI response simulation
+- Developed initial chat interface and window functions
+
+## v0.2.0
+
+### Branding
+
+- Rebranded to "volt"
+
+### Command Structure
+
+- Updated commands definition as per hierarchy
+- Added configuration management commands:
+    - 'config reset defaults'
+    - 'config show defaults'
+    - 'start chat `<provider>`'
+    - 'config set default model'
+    - 'show-config'
+    - 'config `<provider>`'
+    - 'reset --danger'
+    - 'default-model'
+
+### Features
+
+- Added '--provider' option in 'list-models' command
+- Abstracted colors from functions
+- Added 'list-models' and 'list-providers' commands
+- Updated config paths
+- Added version display in whoami command
+- Implemented version and catch-all commands
+- Added 'whoami' command with profile types and separate configs
+
+## Initial Release
+
+### Foundation
+
+- Established core architecture
+- Implemented essential commands
+- Set up configuration management
+- Created profile initialization
