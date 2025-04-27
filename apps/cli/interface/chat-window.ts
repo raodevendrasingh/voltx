@@ -16,17 +16,47 @@ interface ChatInterfaceProps {
 	provider: Provider;
 }
 
+function createWelcomeMessage(width: number): string {
+	const lines = [
+		chalk.bold.blueBright(
+			`                   Voltx v${VERSION}               `,
+		),
+		"",
+		`press ${chalk.cyan("Esc")}  - Enter Normal mode / Exit Command mode`,
+		`press ${chalk.cyan("Tab")}  - Switch focus between Input and Chat`,
+		`type  ${chalk.cyan(":")}    - Enter Command mode (from Normal mode)`,
+		`type  ${chalk.cyan(":q")}   - Quit without saving`,
+		`type  ${chalk.cyan(":wq")}  - Save and quit`,
+		"",
+		chalk.gray("Start typing your query below."),
+	];
+
+	const maxLength = Math.max(
+		...lines.map((line) => line.replace(/\u001b\[.*?m/g, "").length),
+	);
+	const horizontalPadding = Math.floor((width - maxLength) / 2) - 2;
+	const paddingStr = " ".repeat(Math.max(0, horizontalPadding));
+
+	// Add vertical padding (approximate centering)
+	const verticalPaddingLines = 5; // Adjust as needed
+	const topPadding = "\n".repeat(verticalPaddingLines);
+
+	return topPadding + lines.map((line) => paddingStr + line).join("\n");
+}
+
 export default function createChatInterface({
 	model,
 	provider,
 }: ChatInterfaceProps) {
 	const screen = blessed.screen({
 		smartCSR: true,
+		title: `Voltx v${VERSION}`,
 	});
 
 	type Mode = "normal" | "insert" | "command";
 
 	let currentMode: Mode = "insert";
+	let isFirstQuery = true;
 
 	let messages: string[] = [];
 	let isCommandMode = false;
@@ -79,9 +109,9 @@ export default function createChatInterface({
 		},
 		mouseDrag: true,
 		mouseEvents: true,
+		content: createWelcomeMessage(screen.width as number),
 	});
 
-	// Modify the inputBox configuration
 	const inputBox = blessed.textbox({
 		parent: screen,
 		bottom: 1,
@@ -211,13 +241,14 @@ export default function createChatInterface({
 	inputBox.on("submit", async (value) => {
 		const trimmedValue = value.trim();
 		if (!trimmedValue || trimmedValue === "Type your query here...") {
-			// Check against placeholder
 			inputBox.clearValue();
-			// Reset placeholder if needed after submit (optional, handled by blur)
-			// inputBox.setValue(" Type your query here...");
-			// inputBox.style.fg = "gray";
 			screen.render();
 			return;
+		}
+
+		if (isFirstQuery) {
+			chatBox.setContent("");
+			isFirstQuery = false;
 		}
 
 		const userMessage = `${modelColor("[user]")}: ${trimmedValue}`;
@@ -258,6 +289,10 @@ export default function createChatInterface({
 			updateBottomBar();
 			screen.render();
 		} catch (error: any) {
+			if (isFirstQuery) {
+				chatBox.setContent("");
+				isFirstQuery = false;
+			}
 			const errorMsg = `[system]: Error getting response from ${provider}: ${error.message}\n`;
 			chatBox.setContent(chatBox.getContent() + errorMsg + "\n");
 			messages.push(errorMsg);
@@ -420,5 +455,6 @@ export default function createChatInterface({
 	});
 
 	enterInsertMode();
+	updateBottomBar();
 	screen.render();
 }
