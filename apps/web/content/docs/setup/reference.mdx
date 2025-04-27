@@ -1,0 +1,77 @@
+---
+title: Command Reference
+description: Reference for VoltX CLI commands that can be run without initial configuration.
+---
+
+import { Tab, Tabs } from "fumadocs-ui/components/tabs";
+import { CodeBlock } from "fumadocs-ui/components/codeblock";
+import { Callout } from "fumadocs-ui/components/callout";
+import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
+
+## Utility Commands
+
+### `voltx flash`
+
+Inspired from `neofetch`, this displays basic information about the VoltX installation and user stats if configured.
+
+<DynamicCodeBlock lang="bash" code="voltx flash" />
+
+This command provides a quick overview, potentially including the user alias and creation date if the configuration exists.
+
+### `list-providers`
+
+Lists all the AI providers currently supported by VoltX.
+
+<DynamicCodeBlock lang="bash" code="voltx list-providers" />
+
+This helps you see which services (like OpenAI, Anthropic, Gemini, etc.) you can potentially configure.
+
+### `list-models`
+
+Lists the AI models supported by VoltX, optionally filtered by a specific provider.
+
+**List all models:**
+
+<DynamicCodeBlock lang="bash" code="voltx list-models " />
+
+**List models for a specific provider (e.g., OpenAI):**
+
+<DynamicCodeBlock lang="bash" code="voltx list-models --provider openai" />
+
+This command shows the available model identifiers (e.g., `gpt-4`, `claude-3-opus`) you can use during configuration or chat sessions.
+
+## Configuration Commands
+
+### `show-defaults`
+
+Displays the default provider and model currently set in your configuration.
+
+<DynamicCodeBlock lang="bash" code="voltx config show-defaults" />
+
+<Callout>
+	This command reads from your existing `config.toml`. If no configuration or
+	defaults are set, it may show empty values.
+</Callout>
+
+## Destructive Commands
+
+### `reset-defaults`
+
+Resets the default provider and model settings in your configuration file.
+
+<DynamicCodeBlock lang="bash" code="voltx config reset-defaults" />
+
+<Callout title="Requires Confirmation">
+	This command modifies your configuration file (`~/.voltx/config.toml`).
+</Callout>
+
+### `reset`
+
+Completely resets your VoltX setup by deleting the entire configuration directory (`~/.voltx`).
+
+<DynamicCodeBlock lang="bash" code="voltx reset" />
+
+<Callout title="Irreversible Action">
+	This is a destructive operation and cannot be undone. It removes your
+	`config.toml`, saved chats, logs, cache, and temporary files.
+</Callout>
