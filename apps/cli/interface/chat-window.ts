@@ -25,8 +25,9 @@ function createWelcomeMessage(width: number): string {
 		`press ${chalk.cyan("Esc")}  - Enter Normal mode / Exit Command mode`,
 		`press ${chalk.cyan("Tab")}  - Switch focus between Input and Chat`,
 		`type  ${chalk.cyan(":")}    - Enter Command mode (from Normal mode)`,
-		`type  ${chalk.cyan(":q")}   - Quit without saving`,
-		`type  ${chalk.cyan(":wq")}  - Save and quit`,
+		`type  ${chalk.cyan(":q")}   - Exit interface without saving`,
+		`type  ${chalk.cyan(":wq")}  - Save and quit chat interface`,
+		`type  ${chalk.cyan(":clr")}  - Clear the chat screen`,
 		"",
 		chalk.gray("Start typing your query below."),
 	];
@@ -400,6 +401,17 @@ export default function createChatInterface({
 					outro(chalk.greenBright(`Chat saved at path ${filePath}`));
 					process.exit(0);
 				}
+				break;
+
+			case ":clr":
+				chatBox.setContent("");
+				messages = [];
+				isFirstQuery = true;
+				chatBox.setContent(
+					createWelcomeMessage(screen.width as number),
+				);
+				updateBottomBar();
+				screen.render();
 				break;
 
 			default:
