@@ -49,6 +49,7 @@ export default function createChatInterface({
 		left: 0,
 		width: "100%",
 		height: "80%",
+		label: " Message Box ",
 		border: {
 			type: "line",
 		},
@@ -56,14 +57,13 @@ export default function createChatInterface({
 		alwaysScroll: true,
 		mouse: true,
 		keys: true,
-		keyable: true, // Enable key events
-		clickable: true, // Enable click events
-		focusable: true, // Enable focus
+		keyable: true,
+		clickable: true,
+		focusable: true,
 		selectable: true,
-		grabKeys: false, // Change to false
+		grabKeys: false,
 		style: {
 			fg: "white",
-			bg: "black",
 			border: {
 				fg: "gray",
 			},
@@ -88,12 +88,11 @@ export default function createChatInterface({
 		left: 0,
 		width: "100%",
 		height: "20%-1",
+		label: " Query Box ",
 		border: {
 			type: "line",
 		},
 		style: {
-			fg: "white",
-			bg: "black",
 			border: {
 				fg: "black",
 			},
@@ -103,6 +102,34 @@ export default function createChatInterface({
 		keys: true,
 		mouse: true,
 		vi: false,
+		value: " Type your query here...",
+	});
+
+	// Clear placeholder on focus if it's the placeholder text
+	inputBox.on("focus", () => {
+		if (inputBox.value === " Type your query here...") {
+			inputBox.clearValue();
+			inputBox.style.fg = "white"; // Change text color to white
+			screen.render();
+		}
+	});
+
+	// Set placeholder if input is empty on blur
+	inputBox.on("blur", () => {
+		if (!inputBox.value.trim()) {
+			inputBox.setValue(" Type your query here...");
+			inputBox.style.fg = "gray"; // Change text color back to gray
+			screen.render();
+		}
+	});
+
+	// Optional: Clear placeholder on first keypress if it's still the placeholder
+	inputBox.once("keypress", () => {
+		if (inputBox.value === " Type your query here...") {
+			inputBox.clearValue();
+			inputBox.style.fg = "white";
+			screen.render();
+		}
 	});
 
 	const bottomBar = blessed.box({
@@ -182,23 +209,30 @@ export default function createChatInterface({
 
 	// Replace the input submit handler
 	inputBox.on("submit", async (value) => {
-		if (!value || !value.trim()) {
+		const trimmedValue = value.trim();
+		if (!trimmedValue || trimmedValue === "Type your query here...") {
+			// Check against placeholder
 			inputBox.clearValue();
+			// Reset placeholder if needed after submit (optional, handled by blur)
+			// inputBox.setValue(" Type your query here...");
+			// inputBox.style.fg = "gray";
 			screen.render();
 			return;
 		}
 
-		const userMessage = `${modelColor("[user]")}: ${value.trim()}`;
-		const userQuery = `[user]: ${value.trim()}`;
+		const userMessage = `${modelColor("[user]")}: ${trimmedValue}`;
+		const userQuery = `[user]: ${trimmedValue}`;
 		messages.push(userQuery);
 		chatBox.setContent(chatBox.getContent() + userMessage + "\n");
 
-		inputBox.clearValue();
-		inputBox.focus();
+		// Reset input box to placeholder state after submit
+		inputBox.setValue(" Type your query here...");
+		inputBox.style.fg = "gray";
+		inputBox.focus(); // Keep focus or manage as needed
 		screen.render();
 
 		try {
-			const response = await createApi(model, provider, value.trim());
+			const response = await createApi(model, provider, trimmedValue);
 			const parsedResponse = markdown(response, {
 				code: true,
 				showLinks: true,
@@ -257,12 +291,17 @@ export default function createChatInterface({
 		renderTopBar();
 	}
 
-	// Modify enterInsertMode to properly handle input
+	// Modify enterInsertMode to properly handle input and placeholder
 	function enterInsertMode() {
 		currentMode = "insert";
 		inputBox.focus();
 		inputBox.style.border.fg = "green";
 		chatBox.style.border.fg = "gray";
+		// Ensure placeholder is cleared on focus if needed
+		if (inputBox.value === " Type your query here...") {
+			inputBox.clearValue();
+			inputBox.style.fg = "white";
+		}
 		updateBottomBar();
 	}
 
@@ -270,8 +309,13 @@ export default function createChatInterface({
 		currentMode = "normal";
 		inputBox.cancel(); // Cancel input reading
 		chatBox.focus();
-		inputBox.style.border.fg = "gray";
+		inputBox.style.border.fg = "gray"; // Reset border color
 		chatBox.style.border.fg = "white";
+		// Reset placeholder if input is empty when leaving insert mode
+		if (!inputBox.value.trim()) {
+			inputBox.setValue(" Type your query here...");
+			inputBox.style.fg = "gray";
+		}
 		updateBottomBar();
 	}
 
@@ -351,11 +395,21 @@ export default function createChatInterface({
 			if (screen.focused === inputBox) {
 				chatBox.focus();
 				chatBox.style.border.fg = "white";
-				inputBox.style.border.fg = "gray";
+				inputBox.style.border.fg = "gray"; // Reset border color on blur
+				// Reset placeholder if needed on blur
+				if (!inputBox.value.trim()) {
+					inputBox.setValue(" Type your query here...");
+					inputBox.style.fg = "gray";
+				}
 			} else {
 				inputBox.focus();
-				inputBox.style.border.fg = "green";
+				inputBox.style.border.fg = "green"; // Set border color on focus
 				chatBox.style.border.fg = "gray";
+				// Clear placeholder on focus if needed
+				if (inputBox.value === " Type your query here...") {
+					inputBox.clearValue();
+					inputBox.style.fg = "white";
+				}
 			}
 			screen.render();
 		}
