@@ -2,18 +2,12 @@ import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
 import loadConfig from "@/lib/load-config";
-import { select, confirm, text, isCancel, cancel, log } from "@clack/prompts";
+import { select, confirm, log, outro } from "@clack/prompts";
 import { CONFIG_PATH } from "@/utils/paths";
 import { models, providers, Provider, ModelName } from "@/utils/models";
 import { getProviderColor, modelColor } from "@/utils/colors";
 import { logEvent } from "@/lib/logger";
-
-const handleCancel = (value: unknown) => {
-	if (isCancel(value)) {
-		cancel("Operation cancelled.");
-		process.exit(0);
-	}
-};
+import { handleCancel, askApiKey } from "@/lib/prompts";
 
 async function selectModel(provider: Provider): Promise<ModelName | null> {
 	type ModelSelectOption =
@@ -57,16 +51,7 @@ async function configureProvider(provider: Provider): Promise<{
 		return null;
 	}
 
-	const apiKey = await text({
-		message: `Enter API key for ${getProviderColor(provider)(provider)}:`,
-		validate: (input: string) => {
-			if (input.trim() === "") {
-				return "API key is required";
-			}
-		},
-	});
-
-	handleCancel(apiKey);
+	const apiKey = await askApiKey(provider);
 
 	const model = await selectModel(provider);
 	if (!model) {
@@ -170,15 +155,11 @@ export async function setDefaultChatModel(providerName: string | null) {
 			`User configured default model: ${model} from provider ${providerName}`,
 		);
 
-		log.success(
-			chalk.green(
-				`\nDefault model configured successfully: ${modelColor(
-					model,
-				)} ` +
-					`from ${getProviderColor(providerName as Provider)(
-						providerName,
-					)}\n`,
-			),
+		outro(
+			`Default model configured successfully: ${modelColor(model)} ` +
+				`from ${getProviderColor(providerName as Provider)(
+					providerName,
+				)}\n`,
 		);
 	} catch (error) {
 		console.error(chalk.red("Error setting default model:"), error);

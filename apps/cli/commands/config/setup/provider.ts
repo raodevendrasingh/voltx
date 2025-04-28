@@ -1,51 +1,14 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import {
-	select,
-	text,
-	isCancel,
-	cancel,
-	outro,
-	intro,
-	log,
-} from "@clack/prompts";
+import { outro, intro, log } from "@clack/prompts";
 import loadConfig from "@/lib/load-config";
 import { ProviderConfig } from "@/utils/types";
 import { CONFIG_PATH } from "@/utils/paths";
-import { models, providers, Provider, ModelName } from "@/utils/models";
+import { providers, Provider } from "@/utils/models";
 import { getProviderColor, modelColor } from "@/utils/colors";
 import { logEvent } from "@/lib/logger";
-
-const handleCancel = (value: unknown) => {
-	if (isCancel(value)) {
-		cancel("Operation cancelled.");
-		process.exit(0);
-	}
-};
-
-async function selectProvider(
-	unconfiguredProviders: Provider[],
-): Promise<Provider | null> {
-	if (unconfiguredProviders.length === 0) {
-		log.success(chalk.yellow("\nAll providers have been configured."));
-		return null;
-	}
-
-	const provider = await select<Provider | null>({
-		message: "Select a provider to configure:",
-		options: [
-			...unconfiguredProviders.map((p) => ({
-				label: getProviderColor(p)(p),
-				value: p,
-			})),
-			{ label: "Exit", value: null },
-		],
-	});
-
-	handleCancel(provider);
-	return provider as Provider;
-}
+import { askApiKey, selectModel, selectProvider } from "@/lib/prompts";
 
 export async function configureProvider(providerName?: Provider) {
 	try {
@@ -107,8 +70,11 @@ export async function configureProvider(providerName?: Provider) {
 				chalk.whiteBright(`Let's set up your provider configuration!`),
 			);
 
+			// Pass the unconfiguredProviders list to selectProvider
 			providerToConfig = await selectProvider(unconfiguredProviders);
 			if (!providerToConfig) {
+				// Add an exit option or handle null return appropriately
+				log.info("No provider selected. Exiting configuration.");
 				process.exit(0);
 			}
 		}
@@ -119,35 +85,15 @@ export async function configureProvider(providerName?: Provider) {
 		// Only ask for API key if it's missing
 		let apiKey = currentConfig.API_KEY;
 		if (!apiKey || apiKey.trim() === "") {
-			const newApiKey = await text({
-				message: `Enter API key for ${getProviderColor(
-					providerToConfig,
-				)(providerToConfig)}:`,
-				validate: (input: string) => {
-					if (input.trim() === "") {
-						return "API key is required";
-					}
-				},
-			});
-			handleCancel(newApiKey);
-			apiKey = newApiKey as string;
+			// Use imported askApiKey
+			apiKey = await askApiKey(providerToConfig);
 		}
 
 		// Only ask for model if it's missing
 		let defaultModel = currentConfig.DEFAULT_MODEL;
 		if (!defaultModel || defaultModel.trim() === "") {
-			const model = await select<ModelName>({
-				message: `Select default model for ${getProviderColor(
-					providerToConfig,
-				)(providerToConfig)}:`,
-				// @ts-ignore
-				options: models[providerToConfig].map((m) => ({
-					value: m,
-					label: modelColor(m),
-				})),
-			});
-			handleCancel(model);
-			defaultModel = model as string;
+			// Use imported selectModel
+			defaultModel = await selectModel(providerToConfig);
 		}
 
 		// Update configuration preserving existing values
