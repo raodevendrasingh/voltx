@@ -4,7 +4,6 @@ import chalk from "chalk";
 import TOML from "@iarna/toml";
 import loadConfig from "@/lib/load-config";
 import { createApi } from "@/lib/create-api";
-import { agentPrompt } from "@/lib/setup-client";
 import {
 	select,
 	intro,
@@ -27,6 +26,7 @@ import {
 	askApiKey,
 } from "@/lib/prompts";
 import { loadHistory, saveHistory } from "@/lib/agent-history";
+import { generateDirectoryTree } from "@/utils/generate-tree";
 
 async function _getCommandFromModel(
 	prompt: string,
@@ -34,15 +34,38 @@ async function _getCommandFromModel(
 	model: ModelName,
 ): Promise<string> {
 	const s = spinner();
-	s.start(`Requesting command from ${modelColor(model)}...`);
+	s.start(
+		`Analyzing context and requesting command from ${modelColor(model)}...`,
+	);
+
+	// --- Generate System Prompt ---
+	const currentDir = process.cwd();
+	let directoryTree = "";
 	try {
-		const commandPrompt = `You are an AI assistant that translates natural language commands into executable shell commands for a ${process.platform} environment. Only output the raw command itself, without any explanation, comments, or markdown formatting.\n\nUser prompt: ${prompt}\n\nCommand:`;
-		const command = await createApi(
-			model,
-			provider,
-			commandPrompt,
-			agentPrompt,
-		);
+		directoryTree = generateDirectoryTree(currentDir);
+	} catch (error) {
+		log.warning(`Failed to generate directory tree: ${error}`);
+		directoryTree = "[Could not generate directory tree]";
+	}
+
+	// Rename variable to systemPrompt
+	const systemPrompt = `You are an AI assistant that translates natural language commands into executable shell commands for a ${process.platform} environment.
+	Current Working Directory: ${currentDir}
+	Directory Structure tree (excluding .gitignore contents):
+	${directoryTree || "[Empty or unable to read directory]"}
+
+	Use the provided directory structure to understand the context of the current working directory.
+	Your task is to generate a shell command based on the user's input.
+	You are not allowed to execute any commands or perform any actions outside of generating the command.
+	Do not include any comments or code blocks in your output.
+	Your response should be a single line shell command that can be executed in the current working directory.
+	Only output the raw command itself, without any explanation, comments, or markdown formatting. Ensure commands are contextually appropriate for the current directory and its contents.`;
+	// --- End System Prompt Generation ---
+
+	s.message(`Requesting command from ${modelColor(model)}...`);
+
+	try {
+		const command = await createApi(model, provider, prompt, systemPrompt);
 		s.stop(`Received command suggestion.`);
 		return command
 			.trim()

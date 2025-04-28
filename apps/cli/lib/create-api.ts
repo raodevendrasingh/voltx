@@ -8,15 +8,20 @@ async function _callChatCompletionApi(
 	query: string,
 	systemPrompt: string,
 ): Promise<string> {
+	const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+		{ role: "system", content: systemPrompt },
+	];
+
+	const userQuery = query;
+
+	messages.push({
+		role: "user",
+		content: userQuery,
+	});
+
 	const response = await client.chat.completions.create({
 		model,
-		messages: [
-			{ role: "system", content: systemPrompt },
-			{
-				role: "user",
-				content: query,
-			},
-		],
+		messages: messages,
 	});
 
 	const content = response.choices[0].message.content;
