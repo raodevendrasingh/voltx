@@ -14,6 +14,7 @@ import { startChat } from "@/features/chat";
 import { log } from "@clack/prompts";
 import { resetVoltx } from "@/commands/utility/reset";
 import { VERSION } from "@/bin/version";
+import { startAgent } from "@/features/agent";
 
 program.version(VERSION, "-v, --version", "Display CLI version");
 
@@ -135,6 +136,20 @@ program
 			console.error(chalk.red("Error showing configuration:"), error);
 			process.exit(1);
 		});
+	});
+
+program
+	.command("agent")
+	.argument("[provider]", "Provider to use for agent")
+	.option("--temp", "Use temporary model selection")
+	.description("Start an interactive agent session in the current directory")
+	.action((provider, options) => {
+		startAgent(provider as Provider | undefined, options.temp).catch(
+			(error) => {
+				log.error(`Failed to start agent session: ${error}`);
+				process.exit(1);
+			},
+		);
 	});
 
 program
