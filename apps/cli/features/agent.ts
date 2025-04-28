@@ -19,7 +19,7 @@ import { logEvent } from "@/lib/logger";
 import { CONFIG_PATH } from "@/utils/paths";
 import { getProviderColor, modelColor } from "@/utils/colors";
 import { providers, Provider, ModelName } from "@/utils/models";
-import { exec } from "child_process";
+import { spawn } from "child_process";
 import {
 	handleCancel,
 	selectProvider,
@@ -36,9 +36,18 @@ async function _getCommandFromModel(
 	const s = spinner();
 	s.start(`Requesting command from ${modelColor(model)}...`);
 	try {
-		const command = await createApi(model, provider, prompt, agentPrompt);
+		const commandPrompt = `You are an AI assistant that translates natural language commands into executable shell commands for a ${process.platform} environment. Only output the raw command itself, without any explanation, comments, or markdown formatting.\n\nUser prompt: ${prompt}\n\nCommand:`;
+		const command = await createApi(
+			model,
+			provider,
+			commandPrompt,
+			agentPrompt,
+		);
 		s.stop(`Received command suggestion.`);
-		return command.trim();
+		return command
+			.trim()
+			.replace(/^```sh\n?|```$/g, "")
+			.trim();
 	} catch (error) {
 		s.stop("Failed to get command from AI model.");
 		log.error(`API call failed: ${error}`);
@@ -46,23 +55,93 @@ async function _getCommandFromModel(
 	}
 }
 
-function _executeCommand(command: string): Promise<string> {
+function _executeCommand(command: string): Promise<void> {
 	const s = spinner();
 	s.start(`Executing: ${command}...`);
 	return new Promise((resolve, reject) => {
-		exec(command, (error, stdout, stderr) => {
-			if (error) {
-				s.stop(`Command execution failed.`);
-				log.error(`Command execution error: ${error.message}`);
-				reject(stderr || error.message);
-				return;
-			}
+		const modifiedCommand = command.replace(/\bnpx\b/g, "npm exec --");
+		if (modifiedCommand !== command) {
+			log.info(`(Using 'npm exec --' instead of 'npx')`);
+		}
 
-			s.stop(`Command executed.`);
-			if (stderr) {
-				log.warning(`Command stderr:\n${stderr}`);
+		const shell = process.platform === "win32" ? "cmd" : "sh";
+		const args =
+			process.platform === "win32"
+				? ["/c", modifiedCommand]
+				: ["-c", modifiedCommand];
+
+		const child = spawn(shell, args, {
+			stdio: ["ignore", "pipe", "pipe"],
+		});
+
+		s.stop(`Running command: ${modifiedCommand}`);
+
+		let stderrOutput = "";
+		let partialStdoutLine = "";
+		let partialStderrLine = "";
+
+		const prefix = chalk.gray("│") + "  ";
+
+		child.stdout.on("data", (data) => {
+			const textChunk = partialStdoutLine + data.toString();
+			const lines = textChunk.split("\n");
+			partialStdoutLine = lines.pop() || "";
+			lines.forEach((line) => {
+				process.stdout.write(`${prefix}${chalk.cyan(line)}\n`);
+			});
+		});
+
+		child.stderr.on("data", (data) => {
+			const textChunk = partialStderrLine + data.toString();
+			const lines = textChunk.split("\n");
+			partialStderrLine = lines.pop() || "";
+			lines.forEach((line) => {
+				process.stderr.write(`${prefix}${chalk.red(line)}\n`);
+			});
+			stderrOutput += data.toString();
+		});
+
+		child.on("error", (error) => {
+			if (partialStdoutLine)
+				process.stdout.write(
+					`${prefix}${chalk.cyan(partialStdoutLine)}\n`,
+				);
+			if (partialStderrLine)
+				process.stderr.write(
+					`${prefix}${chalk.red(partialStderrLine)}\n`,
+				);
+			log.error(`Spawn error: ${error.message}`);
+			reject(error);
+		});
+
+		child.on("close", (code) => {
+			if (partialStdoutLine)
+				process.stdout.write(
+					`${prefix}${chalk.cyan(partialStdoutLine)}\n`,
+				);
+			if (partialStderrLine)
+				process.stderr.write(
+					`${prefix}${chalk.red(partialStderrLine)}\n`,
+				);
+
+			if (code === 0) {
+				log.success("Command finished successfully.");
+				resolve();
+			} else {
+				log.error(`Command failed with exit code ${code}.`);
+
+				const npmErrorMatch = stderrOutput.match(/npm ERR!.*\n?/i);
+				const specificError = npmErrorMatch
+					? npmErrorMatch[0].trim()
+					: null;
+				reject(
+					new Error(
+						specificError ||
+							stderrOutput.trim() ||
+							`Command failed with exit code ${code}`,
+					),
+				);
 			}
-			resolve(stdout);
 		});
 	});
 }
@@ -90,12 +169,9 @@ async function agentLoop(provider: Provider, model: ModelName) {
 		).italic(provider)}`,
 	);
 	log.info("Type 'exit' or press Ctrl+C to quit.");
+	log.info("Use '!h' to view and rerun history.");
 
-	// Note: @clack/prompts text input doesn't directly support arrow-key history navigation.
-	// History is saved for potential future use or external access.
-	// Use '!h' to view and rerun history.
-
-	let loopShouldEnd = false; // Flag to control loop exit and history saving
+	let loopShouldEnd = false;
 
 	while (!loopShouldEnd) {
 		let userPrompt = await text({
@@ -170,6 +246,13 @@ async function agentLoop(provider: Provider, model: ModelName) {
 				break;
 			}
 
+			if (!suggestedCommand.trim()) {
+				log.warning(
+					"Received empty command suggestion from the model.",
+				);
+				continue;
+			}
+
 			log.info(`Suggested command: ${chalk.cyan(suggestedCommand)}`);
 
 			const proceed = await confirm({
@@ -180,16 +263,7 @@ async function agentLoop(provider: Provider, model: ModelName) {
 
 			if (proceed) {
 				try {
-					const output = await _executeCommand(suggestedCommand);
-					if (output.trim()) {
-						const paddedOutput = output
-							.trim()
-							.split("\n")
-							.map((line) => `${chalk.gray("│")}  ${line}`)
-							.join("\n");
-						console.log(paddedOutput);
-					}
-
+					await _executeCommand(suggestedCommand);
 					logEvent(
 						"info",
 						`Agent executed command: ${suggestedCommand}`,
