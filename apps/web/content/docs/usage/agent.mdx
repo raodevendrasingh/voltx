@@ -1,4 +1,60 @@
 ---
 title: Agent Mode
-description: Using VoltX.
+description: Use VoltX Agent to translate natural language commands into executable shell commands.
 ---
+
+import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
+import { Callout } from "fumadocs-ui/components/callout";
+
+## Overview
+
+VoltX Agent Mode acts as an intelligent assistant directly in your terminal. You provide instructions in natural language, and the agent suggests a corresponding shell command. You can then review, approve, and execute the command.
+
+## Starting an Agent Session
+
+You can initiate an agent session in several ways, similar to Chat Mode:
+
+### Default Agent
+
+Starts an agent session using your configured default provider and model. If no defaults are set, VoltX will prompt you to configure them or select temporary options.
+
+<DynamicCodeBlock lang="bash" code="voltx agent" />
+
+### Agent with a Specific Provider
+
+Starts an agent session using a specific provider. VoltX will use the default model configured for that provider, or prompt you if none is set.
+
+<DynamicCodeBlock lang="bash" code="voltx agent <provider-name>" />
+
+Replace `<provider-name>` with the provider you want to use (e.g., `google`, `openai`).
+
+### Temporary Model Selection
+
+Starts an agent session with a specific provider but forces a temporary model selection for this session only. This overrides any configured defaults for the duration of the agent session.
+
+<DynamicCodeBlock lang="bash" code="voltx agent <provider-name> --temp" />
+
+Replace `<provider-name>` with the provider you want to use. VoltX will prompt you to select a model from that provider for this specific session.
+
+## Using the Agent
+
+Once activated, the agent will prompt you for input in your current directory.
+
+1.  **Enter Command:** Type your desired action in natural language (e.g., "list all typescript files", "create a new directory called temp").
+2.  **Review Suggestion:** The agent will process your input and suggest a shell command.
+3.  **Confirm Execution:** You will be asked to confirm whether you want to run the suggested command.
+4.  **Execute (or Skip):** If confirmed, the command runs, and its output is displayed. If skipped, the agent waits for your next input.
+5.  **Exit:** Type `exit` or `quit` to end the agent session.
+
+### Command History
+
+Within an active agent session, you can access previously entered natural language prompts:
+
+- Type `!h` and press Enter.
+- A list of recent prompts will be displayed.
+- Select a prompt from the list to rerun it.
+
+<Callout>
+	The natural language prompts you enter are saved locally in your
+	`.voltx/cache` directory. This history is used for the `!h` command feature.
+</Callout>
