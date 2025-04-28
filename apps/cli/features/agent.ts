@@ -13,6 +13,7 @@ import {
 	text,
 	cancel,
 	confirm,
+	spinner,
 } from "@clack/prompts";
 import { logEvent } from "@/lib/logger";
 import { CONFIG_PATH } from "@/utils/paths";
@@ -32,31 +33,34 @@ async function _getCommandFromModel(
 	provider: Provider,
 	model: ModelName,
 ): Promise<string> {
-	log.info(
-		chalk.dim(
-			`Requesting command from ${modelColor(model)} for prompt: "${prompt}"...`,
-		),
-	);
+	const s = spinner();
+	s.start(`Requesting command from ${modelColor(model)}...`);
 	try {
 		const command = await createApi(model, provider, prompt, agentPrompt);
+		s.stop(`Received command suggestion.`);
 		return command.trim();
 	} catch (error) {
+		s.stop("Failed to get command from AI model.");
 		log.error(`API call failed: ${error}`);
 		return `echo "Error: Failed to get command from AI model. ${error instanceof Error ? error.message : ""}"`;
 	}
 }
 
 function _executeCommand(command: string): Promise<string> {
+	const s = spinner();
+	s.start(`Executing: ${command}...`);
 	return new Promise((resolve, reject) => {
 		exec(command, (error, stdout, stderr) => {
 			if (error) {
+				s.stop(`Command execution failed.`);
 				log.error(`Command execution error: ${error.message}`);
 				reject(stderr || error.message);
 				return;
 			}
+
+			s.stop(`Command executed.`);
 			if (stderr) {
-				log.warning(`Command stderr: ${stderr}`);
-				// Resolve even with stderr, as some commands use it for non-error output
+				log.warning(`Command stderr:\n${stderr}`);
 			}
 			resolve(stdout);
 		});
@@ -73,7 +77,7 @@ async function agentLoop(provider: Provider, model: ModelName) {
 		chalk.green(" ⌘") +
 		chalk.yellowBright(" »");
 
-	const history = loadHistory(); // Load history from previous sessions
+	const history = loadHistory();
 
 	console.log();
 	intro(chalk.yellowBright.bold("🤖 Agent Mode"));
@@ -155,7 +159,6 @@ async function agentLoop(provider: Provider, model: ModelName) {
 		}
 
 		try {
-			// Get suggested command from the actual API
 			const suggestedCommand = await _getCommandFromModel(
 				userPrompt as string,
 				provider,
@@ -176,19 +179,27 @@ async function agentLoop(provider: Provider, model: ModelName) {
 			handleCancel(proceed);
 
 			if (proceed) {
-				log.info(chalk.gray(`Executing: ${suggestedCommand}...`));
-				const output = await _executeCommand(suggestedCommand);
-				if (output.trim()) {
-					const paddedOutput = output
-						.trim()
-						.split("\n")
-						.map((line) => `${chalk.gray("│")}  ${line}`)
-						.join("\n");
+				try {
+					const output = await _executeCommand(suggestedCommand);
+					if (output.trim()) {
+						const paddedOutput = output
+							.trim()
+							.split("\n")
+							.map((line) => `${chalk.gray("│")}  ${line}`)
+							.join("\n");
+						console.log(paddedOutput);
+					}
 
-					console.log(paddedOutput);
+					logEvent(
+						"info",
+						`Agent executed command: ${suggestedCommand}`,
+					);
+				} catch (execError) {
+					logEvent(
+						"error",
+						`Agent command execution failed: ${execError}`,
+					);
 				}
-				log.success("Command executed.");
-				logEvent("info", `Agent executed command: ${suggestedCommand}`);
 			} else {
 				log.info("Command skipped.");
 				logEvent("info", `Agent skipped command: ${suggestedCommand}`);
