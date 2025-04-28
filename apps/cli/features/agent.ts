@@ -25,8 +25,9 @@ import {
 	selectModel,
 	askApiKey,
 } from "@/lib/prompts";
+import { loadHistory, saveHistory } from "@/lib/agent-history";
 
-async function getCommandFromModel(
+async function _getCommandFromModel(
 	prompt: string,
 	provider: Provider,
 	model: ModelName,
@@ -45,8 +46,7 @@ async function getCommandFromModel(
 	}
 }
 
-// Function to execute a command in the shell
-function executeCommand(command: string): Promise<string> {
+function _executeCommand(command: string): Promise<string> {
 	return new Promise((resolve, reject) => {
 		exec(command, (error, stdout, stderr) => {
 			if (error) {
@@ -73,8 +73,10 @@ async function agentLoop(provider: Provider, model: ModelName) {
 		chalk.green(" ⌘") +
 		chalk.yellowBright(" »");
 
+	const history = loadHistory(); // Load history from previous sessions
+
 	console.log();
-	intro(chalk.yellowBright.bold("Agent Mode"));
+	intro(chalk.yellowBright.bold("🤖 Agent Mode"));
 
 	log.info(
 		`Agent activated in ${chalk.blue.italic(
@@ -85,29 +87,77 @@ async function agentLoop(provider: Provider, model: ModelName) {
 	);
 	log.info("Type 'exit' or press Ctrl+C to quit.");
 
-	while (true) {
-		const userInput = await text({
+	// Note: @clack/prompts text input doesn't directly support arrow-key history navigation.
+	// History is saved for potential future use or external access.
+	// Use '!h' to view and rerun history.
+
+	let loopShouldEnd = false; // Flag to control loop exit and history saving
+
+	while (!loopShouldEnd) {
+		let userPrompt = await text({
 			message: promptPrefix,
-			placeholder: "Enter your command in natural language...",
+			placeholder: "Enter command or '!h' for history...",
 			validate: (value) => {
 				if (!value) return "Please enter a command.";
 			},
 		});
 
-		handleCancel(userInput);
+		if (typeof userPrompt === "symbol") {
+			handleCancel(userPrompt);
+			loopShouldEnd = true;
+			continue;
+		}
 
-		if (
-			(userInput as string).toLowerCase() === "exit" ||
-			(userInput as string).toLowerCase() === "quit"
+		if ((userPrompt as string).toLowerCase() === "!h") {
+			if (history.length === 0) {
+				log.info("No history available yet for this session.");
+				continue;
+			}
+
+			const recentHistory = [...history].reverse();
+			const historyChoice = await select({
+				message: "Select a command from history to rerun:",
+				options: [
+					...recentHistory.map((cmd, index) => ({
+						value: cmd,
+						label: `${index + 1}. ${cmd.length > 60 ? cmd.substring(0, 57) + "..." : cmd}`,
+					})),
+					{ value: null, label: "Cancel" },
+				],
+				maxItems: 15,
+			});
+
+			handleCancel(historyChoice);
+
+			if (historyChoice === null) {
+				continue;
+			}
+
+			userPrompt = historyChoice;
+			log.info(`Rerunning: ${chalk.italic(userPrompt)}`);
+		} else if (
+			(userPrompt as string).toLowerCase() === "exit" ||
+			(userPrompt as string).toLowerCase() === "quit"
 		) {
-			outro(chalk.yellow("Agent session ended."));
-			break;
+			loopShouldEnd = true;
+			continue;
+		}
+
+		const lowerCasePrompt = (userPrompt as string).toLowerCase();
+		if (
+			userPrompt &&
+			lowerCasePrompt !== "!h" &&
+			lowerCasePrompt !== "exit" &&
+			lowerCasePrompt !== "quit" &&
+			history[history.length - 1] !== userPrompt
+		) {
+			history.push(userPrompt as string);
 		}
 
 		try {
 			// Get suggested command from the actual API
-			const suggestedCommand = await getCommandFromModel(
-				userInput as string,
+			const suggestedCommand = await _getCommandFromModel(
+				userPrompt as string,
 				provider,
 				model,
 			);
@@ -127,7 +177,7 @@ async function agentLoop(provider: Provider, model: ModelName) {
 
 			if (proceed) {
 				log.info(chalk.gray(`Executing: ${suggestedCommand}...`));
-				const output = await executeCommand(suggestedCommand);
+				const output = await _executeCommand(suggestedCommand);
 				if (output.trim()) {
 					const paddedOutput = output
 						.trim()
@@ -144,10 +194,18 @@ async function agentLoop(provider: Provider, model: ModelName) {
 				logEvent("info", `Agent skipped command: ${suggestedCommand}`);
 			}
 		} catch (error) {
-			log.error(`Agent error: ${error}`);
-			logEvent("error", `Agent error processing command: ${error}`);
+			if (typeof error === "symbol") {
+				handleCancel(error);
+				loopShouldEnd = true;
+			} else {
+				log.error(`Agent error: ${error}`);
+				logEvent("error", `Agent error processing command: ${error}`);
+			}
 		}
 	}
+
+	saveHistory(history);
+	outro(chalk.yellow("Agent session ended."));
 }
 
 export async function startAgent(
@@ -158,7 +216,6 @@ export async function startAgent(
 		const config = loadConfig();
 		let configUpdated = false;
 
-		// Validate providerArg if it exists
 		if (providerArg && !providers.includes(providerArg)) {
 			log.error(`Invalid provider specified: ${providerArg}`);
 			log.info(`Available providers: ${providers.join(", ")}`);
@@ -168,16 +225,12 @@ export async function startAgent(
 		let selectedProvider: Provider;
 		let selectedModel: ModelName;
 
-		// --- Provider/Model Selection Logic (similar to startChat) ---
-
-		// Priority 1: --temp flag (always prompts)
 		if (useTemp) {
 			intro(
 				chalk.cyan("Select temporary provider and model for agent..."),
 			);
 			selectedProvider = providerArg || (await selectProvider());
 
-			// Check/configure API key if needed
 			if (!config[selectedProvider]?.API_KEY) {
 				log.warning(
 					`Provider ${getProviderColor(selectedProvider)(
@@ -207,11 +260,8 @@ export async function startAgent(
 				"info",
 				`Starting temporary agent session with ${selectedModel} from ${selectedProvider}`,
 			);
-		}
-		// Priority 2: providerArg provided
-		else if (providerArg) {
+		} else if (providerArg) {
 			selectedProvider = providerArg;
-			// Check/configure API key if needed
 			if (!config[selectedProvider]?.API_KEY) {
 				log.warning(
 					`Provider ${getProviderColor(selectedProvider)(
@@ -237,7 +287,6 @@ export async function startAgent(
 				);
 			}
 
-			// Check for provider-specific default model
 			if (config[selectedProvider]?.DEFAULT_MODEL) {
 				selectedModel = config[selectedProvider]!
 					.DEFAULT_MODEL as ModelName;
@@ -246,7 +295,6 @@ export async function startAgent(
 					`Starting agent session with provider default ${selectedModel} from ${selectedProvider}`,
 				);
 			} else {
-				// No provider default, prompt to select and optionally set default
 				log.warning(
 					`No default model configured for ${getProviderColor(
 						selectedProvider,
@@ -274,7 +322,7 @@ export async function startAgent(
 				if (option === "default") {
 					if (!config[selectedProvider]) {
 						config[selectedProvider] = {
-							API_KEY: config[selectedProvider]?.API_KEY || "", // Should exist from check above
+							API_KEY: config[selectedProvider]?.API_KEY || "",
 							DEFAULT_MODEL: null,
 						};
 					}
@@ -291,12 +339,9 @@ export async function startAgent(
 					);
 				}
 			}
-		}
-		// Priority 3: Global default provider/model
-		else if (config.user.defaultProvider && config.user.defaultModel) {
+		} else if (config.user.defaultProvider && config.user.defaultModel) {
 			selectedProvider = config.user.defaultProvider;
 			selectedModel = config.user.defaultModel;
-			// Verify API key exists for the default provider
 			if (!config[selectedProvider]?.API_KEY) {
 				log.error(
 					`Default provider ${getProviderColor(selectedProvider)(
@@ -312,9 +357,7 @@ export async function startAgent(
 				"info",
 				`Starting agent session with global default ${selectedModel} from ${selectedProvider}`,
 			);
-		}
-		// Priority 4: No defaults, no args - prompt user
-		else {
+		} else {
 			intro(chalk.cyan("Configure agent provider and model..."));
 			log.warning("No default agent model configured.");
 			const option = await select<"default" | "temporary">({
@@ -333,7 +376,6 @@ export async function startAgent(
 			handleCancel(option);
 			selectedProvider = await selectProvider();
 
-			// Check/configure API key
 			if (!config[selectedProvider]?.API_KEY) {
 				log.warning(
 					`Provider ${getProviderColor(selectedProvider)(
@@ -364,7 +406,6 @@ export async function startAgent(
 			if (option === "default") {
 				config.user.defaultModel = selectedModel;
 				config.user.defaultProvider = selectedProvider;
-				// Also set provider default if not set
 				if (!config[selectedProvider]!.DEFAULT_MODEL) {
 					config[selectedProvider]!.DEFAULT_MODEL = selectedModel;
 				}
