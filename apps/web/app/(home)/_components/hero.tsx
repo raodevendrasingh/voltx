@@ -58,7 +58,7 @@ export const Hero = (): JSX.Element => {
 									onClick={async () => {
 										const copied =
 											await copyToClipboard(
-												"npm i voltx",
+												"npm i -g voltx",
 											);
 										if (copied) {
 											setHasCopied(true);
@@ -70,7 +70,7 @@ export const Hero = (): JSX.Element => {
 									}}
 								>
 									<Terminal className="w-4 h-4 mr-2" />
-									npm i voltx
+									npm i -g voltx
 									{hasCopied ? (
 										<Check className="w-4 h-4 ml-2 text-accent/80 " />
 									) : (
