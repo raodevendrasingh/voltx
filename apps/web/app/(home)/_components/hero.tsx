@@ -1,10 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Copy, Terminal, Check, BookOpen } from "lucide-react";
 import { JSX } from "react";
-import heroPlaceholder from "@/assets/placeholder/placeholder_1920x1080.png";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -100,15 +98,21 @@ export const Hero = (): JSX.Element => {
 									<div className="w-3 h-3 rounded-full bg-green-500" />
 								</div>
 							</div>
-							<div className="p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/50">
-								<Image
-									src={heroPlaceholder}
-									alt="Terminal Preview"
+
+							<div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/50">
+								<video
+									src="https://pub-0ca03071805047dc9370b8f312563c84.r2.dev/media/voltx_demo_1080p.mp4"
 									width={1920}
 									height={1080}
-									className="rounded-md"
-									priority
-								/>
+									className="rounded-b-xl w-full h-full object-cover"
+									autoPlay
+									loop
+									muted
+									playsInline
+									preload="metadata"
+								>
+									Your browser does not support the video tag.
+								</video>
 							</div>
 						</div>
 					</div>
