@@ -1,8 +1,8 @@
 {
 	"root": true,
 	"pages": [
-		"---Setup---",
-		"...setup",
+		"---Quickstart---",
+		"...quickstart",
 		"---Usage---",
 		"...usage",
 		"---Community---",

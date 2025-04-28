@@ -3,10 +3,8 @@ title: Commands Reference
 description: This document serves as a reference for all commands available in voltx, including their syntax, parameters, expected outputs, and examples.
 ---
 
-import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 import { CodeBlock } from "fumadocs-ui/components/codeblock";
 import { Callout } from "fumadocs-ui/components/callout";
-import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 
 ## Utility Commands
 
@@ -14,7 +12,9 @@ import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 
 Inspired from `neofetch`, this displays basic information about the VoltX installation and user stats if configured.
 
-<DynamicCodeBlock lang="bash" code="voltx flash" />
+```bash
+voltx flash
+```
 
 This command provides a quick overview, potentially including the user alias and creation date if the configuration exists.
 
@@ -22,7 +22,9 @@ This command provides a quick overview, potentially including the user alias and
 
 Lists all the AI providers currently supported by VoltX.
 
-<DynamicCodeBlock lang="bash" code="voltx list-providers" />
+```bash
+voltx list-providers
+```
 
 This helps you see which services (like OpenAI, Anthropic, Gemini, etc.) you can potentially configure.
 
@@ -32,11 +34,15 @@ Lists the AI models supported by VoltX, optionally filtered by a specific provid
 
 **List all models:**
 
-<DynamicCodeBlock lang="bash" code="voltx list-models " />
+```bash
+voltx list-models
+```
 
 **List models for a specific provider (e.g., OpenAI):**
 
-<DynamicCodeBlock lang="bash" code="voltx list-models --provider openai" />
+```bash
+voltx list-models --provider openai
+```
 
 This command shows the available model identifiers (e.g., `gpt-4`, `claude-3-opus`) you can use during configuration or chat sessions.
 
@@ -46,7 +52,9 @@ This command shows the available model identifiers (e.g., `gpt-4`, `claude-3-opu
 
 Displays the default provider and model currently set in your configuration.
 
-<DynamicCodeBlock lang="bash" code="voltx config show-defaults" />
+```bash
+voltx config show-defaults
+```
 
 <Callout>
 	This command reads from your existing `config.toml`. If no configuration or
@@ -57,10 +65,9 @@ Displays the default provider and model currently set in your configuration.
 
 Sets the default AI model to be used for chat sessions when no specific provider or model is specified.
 
-<DynamicCodeBlock
-	lang="bash"
-	code="voltx config setup chat-model --provider <provider-name>"
-/>
+```bash
+voltx config setup chat-model --provider <provider-name>
+```
 
 You need to specify the provider whose model you want to set as default using the `--provider` flag.
 
@@ -72,16 +79,17 @@ Configures the API key and other settings for AI providers.
 
 If run without specifying a provider, it presents an interactive menu to select and configure a provider.
 
-<DynamicCodeBlock lang="bash" code="voltx config setup provider" />
+```bash
+voltx config setup provider
+```
 
 **Direct Setup for a Specific Provider:**
 
 Configures a specific provider directly by using its corresponding flag.
 
-<DynamicCodeBlock
-	lang="bash"
-	code="voltx config setup provider --<provider-name>"
-/>
+```bash
+voltx config setup provider --<provider-name>
+```
 
 Replace `<provider-name>` with the actual provider you want to configure (e.g., `openai`, `anthropic`). This command will guide you through setting up the selected provider.
 
@@ -91,11 +99,15 @@ Displays the entire content of your `config.toml` file.
 
 **Show configuration (masked keys):**
 
-<DynamicCodeBlock lang="bash" code="voltx show config" />
+```bash
+voltx show config
+```
 
 **Show configuration (unmasked keys):**
 
-<DynamicCodeBlock lang="bash" code="voltx show config --unmasked" />
+```bash
+voltx show config --unmasked
+```
 
 <Callout title="Security Warning">
 	Using the `--unmasked` flag will display your API keys in plain text in the
@@ -109,7 +121,9 @@ Displays the entire content of your `config.toml` file.
 
 Resets the default provider and model settings in your configuration file.
 
-<DynamicCodeBlock lang="bash" code="voltx config reset-defaults" />
+```bash
+voltx config reset-defaults
+```
 
 <Callout title="Requires Confirmation">
 	This command modifies your configuration file (`~/.voltx/config.toml`).
@@ -119,7 +133,9 @@ Resets the default provider and model settings in your configuration file.
 
 Completely resets your VoltX setup by deleting the entire configuration directory (`~/.voltx`).
 
-<DynamicCodeBlock lang="bash" code="voltx reset" />
+```bash
+voltx reset
+```
 
 <Callout title="Irreversible Action">
 	This is a destructive operation and cannot be undone. It removes your
