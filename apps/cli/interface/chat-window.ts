@@ -10,6 +10,7 @@ import markdown from "cli-markdown";
 import { getProviderColor, modelColor } from "@/utils/colors";
 import { outro } from "@clack/prompts";
 import { VERSION } from "@/bin/version";
+import { chatPrompt } from "@/lib/setup-client";
 
 interface ChatInterfaceProps {
 	model: ModelName;
@@ -264,7 +265,12 @@ export default function createChatInterface({
 		screen.render();
 
 		try {
-			const response = await createApi(model, provider, trimmedValue);
+			const response = await createApi(
+				model,
+				provider,
+				trimmedValue,
+				chatPrompt,
+			);
 			const parsedResponse = markdown(response, {
 				code: true,
 				showLinks: true,

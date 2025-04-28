@@ -3,6 +3,8 @@ import path from "path";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
 import loadConfig from "@/lib/load-config";
+import { createApi } from "@/lib/create-api";
+import { agentPrompt } from "@/lib/setup-client";
 import {
 	select,
 	isCancel,
@@ -73,31 +75,23 @@ const askApiKey = async (provider: Provider): Promise<string> => {
 	return apiKey as string;
 };
 
-// Basic function to simulate getting a command from the model
-// Replace this with actual API call later
 async function getCommandFromModel(
 	prompt: string,
-	// provider: Provider,
-	// model: ModelName,
-	// apiKey: string,
+	provider: Provider,
+	model: ModelName,
 ): Promise<string> {
 	log.info(
-		chalk.dim(`Simulating model processing for prompt: "${prompt}"...`),
+		chalk.dim(
+			`Requesting command from ${modelColor(model)} for prompt: "${prompt}"...`,
+		),
 	);
-	// Placeholder logic: very basic command generation based on keywords
-	if (prompt.toLowerCase().includes("list files")) {
-		return "ls -la";
-	} else if (prompt.toLowerCase().match(/create.*file.*named\s+(\S+)/)) {
-		const filename = prompt
-			.toLowerCase()
-			.match(/create.*file.*named\s+(\S+)/)?.[1];
-		return `touch ${filename || "new_file.txt"}`;
-	} else if (prompt.toLowerCase().includes("hello")) {
-		return "echo 'Hello from agent!'";
-	} else if (prompt.toLowerCase().includes("exit")) {
-		return "exit";
+	try {
+		const command = await createApi(model, provider, prompt, agentPrompt);
+		return command.trim();
+	} catch (error) {
+		log.error(`API call failed: ${error}`);
+		return `echo "Error: Failed to get command from AI model. ${error instanceof Error ? error.message : ""}"`;
 	}
-	return `echo "Sorry, I couldn't understand the command for: ${prompt}"`;
 }
 
 // Function to execute a command in the shell
@@ -132,11 +126,11 @@ async function agentLoop(provider: Provider, model: ModelName) {
 	intro(chalk.yellowBright.bold("Agent Mode"));
 
 	log.info(
-		`Agent activated in ${chalk.blue(
+		`Agent activated in ${chalk.blue.italic(
 			currentDir,
-		)} using ${modelColor(model)} from ${getProviderColor(provider)(
+		)} using ${modelColor.italic(model)} from ${getProviderColor(
 			provider,
-		)}`,
+		).italic(provider)}`,
 	);
 	log.info("Type 'exit' or press Ctrl+C to quit.");
 
@@ -160,14 +154,12 @@ async function agentLoop(provider: Provider, model: ModelName) {
 		}
 
 		try {
-			// --- Replace with actual API call ---
+			// Get suggested command from the actual API
 			const suggestedCommand = await getCommandFromModel(
 				userInput as string,
-				// provider,
-				// model,
-				// apiKey // You'll need to fetch the API key securely
+				provider,
+				model,
 			);
-			// --- End Replace ---
 
 			if (suggestedCommand.toLowerCase() === "exit") {
 				outro(chalk.yellow("Agent session ended."));

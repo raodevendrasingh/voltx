@@ -1,11 +1,12 @@
 import OpenAI from "openai";
-import { systemPrompt, clients } from "@/lib/setup-client";
+import { clients } from "@/lib/setup-client";
 import type { ModelName, Provider } from "@/utils/models";
 
 async function _callChatCompletionApi(
 	client: OpenAI,
 	model: ModelName,
 	query: string,
+	systemPrompt: string,
 ): Promise<string> {
 	const response = await client.chat.completions.create({
 		model,
@@ -31,6 +32,7 @@ export async function createApi(
 	model: ModelName,
 	provider: Provider,
 	query: string,
+	systemPrompt: string,
 ): Promise<string> {
 	const client = clients[provider];
 
@@ -39,7 +41,7 @@ export async function createApi(
 	}
 
 	try {
-		return await _callChatCompletionApi(client, model, query);
+		return await _callChatCompletionApi(client, model, query, systemPrompt);
 	} catch (error: unknown) {
 		if (error instanceof Error) {
 			throw new Error(
