@@ -1,6 +1,6 @@
 import OpenAI from "openai";
-import { systemPrompt, clients } from "./setup-client";
-import type { ModelName, Provider } from "./models";
+import { systemPrompt, clients } from "@/lib/setup-client";
+import type { ModelName, Provider } from "@/utils/models";
 
 async function _callChatCompletionApi(
 	client: OpenAI,

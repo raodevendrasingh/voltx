@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import loadConfig from "@/utils/load-config";
+import loadConfig from "@/lib/load-config";
 import { Provider } from "@/utils/models";
 import { getProviderColor } from "@/utils/colors";
 

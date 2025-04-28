@@ -3,7 +3,7 @@ import chalk from "chalk";
 import os from "os";
 import path from "path";
 import { execSync } from "child_process";
-import loadConfig from "@/utils/load-config";
+import loadConfig from "@/lib/load-config";
 import { getLogoLines } from "@/utils/ascii";
 import { CHATS_DIR } from "@/utils/paths";
 import { VERSION } from "@/bin/version";

@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import loadConfig from "@/utils/load-config";
+import loadConfig from "@/lib/load-config";
 import { Provider, providers } from "@/utils/models";
 import { getProviderColor, modelColor } from "@/utils/colors";
 

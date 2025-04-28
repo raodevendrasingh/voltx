@@ -11,7 +11,7 @@ import {
 } from "@/utils/paths";
 import { models, providers, Provider, ModelName } from "@/utils/models";
 import { getProviderColor, modelColor } from "@/utils/colors";
-import { logEvent } from "@/utils/logger";
+import { logEvent } from "@/lib/logger";
 import { VoltxConfig } from "@/utils/types";
 import { showBanner } from "@/utils/ascii";
 import {

@@ -1,7 +1,7 @@
 import TOML from "@iarna/toml";
 import { readFileSync } from "fs";
-import { CONFIG_PATH } from "./paths";
-import { VoltxConfig } from "./types";
+import { CONFIG_PATH } from "@/utils/paths";
+import { VoltxConfig } from "@/utils/types";
 import { log } from "@clack/prompts";
 import chalk from "chalk";
 

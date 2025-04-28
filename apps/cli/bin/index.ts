@@ -1,19 +1,19 @@
 import { Command, program } from "commander";
 import chalk from "chalk";
 import { Provider, providers } from "@/utils/models";
-import { flash } from "@/commands/flash";
+import { flash } from "@/commands/utility/flash";
 import { init } from "@/bin/init";
-import { listProviders } from "@/commands/config/list-providers";
-import { listModels } from "@/commands/config/list-models";
+import { listProviders } from "@/commands/utility/list-providers";
+import { listModels } from "@/commands/utility/list-models";
 import { showDefaults } from "@/commands/config/defaults/show";
-import { setDefaultChatModel } from "@/commands/config/defaults/chat-model";
+import { setDefaultChatModel } from "@/commands/config/setup/chat-model";
 import { resetDefaults } from "@/commands/config/defaults/reset";
 import { configureProvider } from "@/commands/config/setup/provider";
 import { showConfig } from "@/commands/config/show";
-import { startChat } from "@/commands/chat/start-chat";
+import { startChat } from "@/features/chat";
 import { log } from "@clack/prompts";
-import { resetVoltx } from "@/commands/reset";
-import { VERSION } from "./version";
+import { resetVoltx } from "@/commands/utility/reset";
+import { VERSION } from "@/bin/version";
 
 program.version(VERSION, "-v, --version", "Display CLI version");
 

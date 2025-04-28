@@ -5,7 +5,7 @@ import blessed from "blessed";
 import path from "path";
 import fs from "fs";
 import chalk from "chalk";
-import { createApi } from "@/utils/create-api";
+import { createApi } from "@/lib/create-api";
 import markdown from "cli-markdown";
 import { getProviderColor, modelColor } from "@/utils/colors";
 import { outro } from "@clack/prompts";

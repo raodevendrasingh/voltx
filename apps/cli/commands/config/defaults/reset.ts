@@ -1,10 +1,10 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import loadConfig from "@/utils/load-config";
+import loadConfig from "@/lib/load-config";
 import { CONFIG_PATH } from "@/utils/paths";
 import { Provider } from "@/utils/models";
-import { logEvent } from "@/utils/logger";
+import { logEvent } from "@/lib/logger";
 import { log } from "@clack/prompts";
 
 export async function resetDefaults(hardFlag: boolean) {

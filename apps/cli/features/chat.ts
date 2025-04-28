@@ -1,7 +1,7 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import loadConfig from "@/utils/load-config";
+import loadConfig from "@/lib/load-config";
 import {
 	select,
 	isCancel,
@@ -11,7 +11,7 @@ import {
 	text,
 	cancel,
 } from "@clack/prompts";
-import { logEvent } from "@/utils/logger";
+import { logEvent } from "@/lib/logger";
 import { CONFIG_PATH } from "@/utils/paths";
 import { getProviderColor, modelColor } from "@/utils/colors";
 import { models, providers, Provider, ModelName } from "@/utils/models";

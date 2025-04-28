@@ -1,12 +1,12 @@
 import fs from "fs";
 import chalk from "chalk";
 import TOML from "@iarna/toml";
-import loadConfig from "@/utils/load-config";
+import loadConfig from "@/lib/load-config";
 import { select, confirm, text, isCancel, cancel, log } from "@clack/prompts";
 import { CONFIG_PATH } from "@/utils/paths";
 import { models, providers, Provider, ModelName } from "@/utils/models";
 import { getProviderColor, modelColor } from "@/utils/colors";
-import { logEvent } from "@/utils/logger";
+import { logEvent } from "@/lib/logger";
 
 const handleCancel = (value: unknown) => {
 	if (isCancel(value)) {
