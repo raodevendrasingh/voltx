@@ -1,4 +1,4 @@
-import * as ignore from "ignore";
+import ignore from "ignore";
 import path from "path";
 import fs from "fs";
 import { log } from "@clack/prompts";
@@ -33,7 +33,7 @@ export function generateDirectoryTree(
 	let files: string[];
 
 	if (ig === null && currentDepth === 0) {
-		ig = ignore.default();
+		ig = ignore();
 		const gitignorePath = _findGitIgnore(dir);
 		if (gitignorePath) {
 			try {
