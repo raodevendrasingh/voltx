@@ -12,10 +12,14 @@ export default function config(): VoltxConfig {
 		return parsedConfig as unknown as VoltxConfig;
 	} catch (error: any) {
 		if (error.code === "ENOENT") {
-			// Check if the command is 'init' before showing the warning
-			const isInitCommand = process.argv.slice(2)[0] === "init";
+			// Check if the command is 'init' or 'version' before showing the warning
+			const args = process.argv.slice(2);
+			const command = args[0];
+			const isInitCommand = command === "init";
+			const isVersionCommand =
+				args.includes("-v") || args.includes("--version");
 
-			if (!isInitCommand) {
+			if (!isInitCommand && !isVersionCommand) {
 				log.warn(
 					chalk.yellow("Voltx not initialized.") +
 						" Run " +
@@ -26,7 +30,7 @@ export default function config(): VoltxConfig {
 				process.exit(0);
 			}
 
-			// Return an empty config object when init is running
+			// Return an empty config object when init or version is running
 			return {
 				user: {
 					alias: "",
