@@ -21,25 +21,27 @@ program.command("init").description("Initialize voltx").action(init);
 
 program.command("flash").description("Show user info and stats").action(flash);
 
+program.addCommand(
+	new Command("list-providers")
+		.description("List all supported model providers")
+		.action(listProviders),
+);
+
+program.addCommand(
+	new Command("list-models")
+		.description("List all supported models by provider")
+		.option(
+			"--provider <provider-name>",
+			"Specify a provider to list models for",
+		)
+		.action((options) => {
+			listModels(options.provider);
+		}),
+);
+
 program
 	.command("config")
 	.description("Manage configuration settings")
-	.addCommand(
-		new Command("list-providers")
-			.description("List all supported model providers")
-			.action(listProviders),
-	)
-	.addCommand(
-		new Command("list-models")
-			.description("List all supported models by provider")
-			.option(
-				"--provider <provider-name>",
-				"Specify a provider to list models for",
-			)
-			.action((options) => {
-				listModels(options.provider);
-			}),
-	)
 	.addCommand(
 		new Command("show-defaults")
 			.description("Show all configured default models")

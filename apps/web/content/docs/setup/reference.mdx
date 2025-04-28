@@ -1,6 +1,6 @@
 ---
-title: Command Reference
-description: Reference for VoltX CLI commands that can be run without initial configuration.
+title: Commands Reference
+description: This document serves as a reference for all commands available in voltx, including their syntax, parameters, expected outputs, and examples.
 ---
 
 import { Tab, Tabs } from "fumadocs-ui/components/tabs";
@@ -10,7 +10,7 @@ import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 
 ## Utility Commands
 
-### `voltx flash`
+### `flash`
 
 Inspired from `neofetch`, this displays basic information about the VoltX installation and user stats if configured.
 
@@ -51,6 +51,56 @@ Displays the default provider and model currently set in your configuration.
 <Callout>
 	This command reads from your existing `config.toml`. If no configuration or
 	defaults are set, it may show empty values.
+</Callout>
+
+### `setup chat-model`
+
+Sets the default AI model to be used for chat sessions when no specific provider or model is specified.
+
+<DynamicCodeBlock
+	lang="bash"
+	code="voltx config setup chat-model --provider <provider-name>"
+/>
+
+You need to specify the provider whose model you want to set as default using the `--provider` flag.
+
+### `setup provider`
+
+Configures the API key and other settings for AI providers.
+
+**Interactive Setup:**
+
+If run without specifying a provider, it presents an interactive menu to select and configure a provider.
+
+<DynamicCodeBlock lang="bash" code="voltx config setup provider" />
+
+**Direct Setup for a Specific Provider:**
+
+Configures a specific provider directly by using its corresponding flag.
+
+<DynamicCodeBlock
+	lang="bash"
+	code="voltx config setup provider --<provider-name>"
+/>
+
+Replace `<provider-name>` with the actual provider you want to configure (e.g., `openai`, `anthropic`). This command will guide you through setting up the selected provider.
+
+### `show config`
+
+Displays the entire content of your `config.toml` file.
+
+**Show configuration (masked keys):**
+
+<DynamicCodeBlock lang="bash" code="voltx show config" />
+
+**Show configuration (unmasked keys):**
+
+<DynamicCodeBlock lang="bash" code="voltx show config --unmasked" />
+
+<Callout title="Security Warning">
+	Using the `--unmasked` flag will display your API keys in plain text in the
+	terminal output. Be cautious when using this option, especially in shared
+	environments.
 </Callout>
 
 ## Destructive Commands
