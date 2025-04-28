@@ -1,4 +1,40 @@
 ---
 title: Chat Mode
-description: Using VoltX.
+description: Engage in interactive conversations with AI models directly from your terminal using VoltX Chat.
 ---
+
+import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
+import { Callout } from "fumadocs-ui/components/callout";
+
+VoltX Chat provides an interactive command-line interface to converse with various AI models you have configured. It allows for seamless switching between providers and models.
+
+## Starting a Chat Session
+
+You can initiate a chat session in several ways:
+
+### Default Chat
+
+Starts a chat session using your configured default provider and model. If no defaults are set, VoltX may prompt you or use the first available configured provider.
+
+<DynamicCodeBlock lang="bash" code="voltx chat" />
+
+### Chat with a Specific Provider
+
+Starts a chat session using a specific provider. VoltX will use the default model configured for that provider, or prompt you if none is set.
+
+<DynamicCodeBlock lang="bash" code="voltx chat <provider-name>" />
+
+Replace `<provider-name>` with the provider you want to use (e.g., `openai`, `anthropic`).
+
+### Temporary Model Selection
+
+Starts a chat session with a specific provider but forces a temporary model selection for this session only. This overrides any configured defaults for the duration of the chat.
+
+<DynamicCodeBlock lang="bash" code="voltx chat <provider-name> --temp" />
+
+Replace `<provider-name>` with the provider you want to use. VoltX will prompt you to select a model from that provider for this specific session.
+
+<Callout>
+	Chat history is saved locally within your `.voltx` directory, allowing you
+	to resume conversations later (feature details may vary).
+</Callout>
