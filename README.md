@@ -52,11 +52,19 @@ You must have an API_KEY of any of your favourite LLM providers.
 
 For detailed usage of each command, visit: [Voltx Docs](https://voltx.vercel.app)
 
-## Contributing
+## Demo
 
-We welcome contributions! If you’d like to contribute, please check out the [contributing guide](contributing.md) for more details on how to get started.
+- Agent Mode
 
-Please ensure you adhere to the project's [code of conduct](CODE_OF_CONDUCT.md).
+![App Screenshot](https://pub-0ca03071805047dc9370b8f312563c84.r2.dev/media/voltx_demo.gif)
+
+## Snapshots
+
+![App Screenshot](https://pub-0ca03071805047dc9370b8f312563c84.r2.dev/snapshots/Screenshot%20From%202025-04-28%2017-15-47.png)
+
+![App Screenshot](https://pub-0ca03071805047dc9370b8f312563c84.r2.dev/snapshots/Screenshot%20From%202025-04-28%2017-16-39.png)
+
+![App Screenshot](https://pub-0ca03071805047dc9370b8f312563c84.r2.dev/snapshots/Screenshot%20From%202025-04-28%2017-21-39.png)
 
 ## License
 
